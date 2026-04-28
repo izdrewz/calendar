@@ -13,9 +13,11 @@
     <div>
       <p class="eyebrow">Focus Week Planner</p>
       <h1>Plan by dragging tasks into your week.</h1>
-      <p class="subtitle">Make a weekly task like “Study 3×”, then place each copy wherever your week actually allows.</p>
+      <p class="subtitle">Use weekly task rules for habits and routines. Use one-off cards for temporary admin, room setup, selling, cleaning, or study tasks you want to remove easily.</p>
     </div>
     <div class="header-actions">
+      <a class="nav-button" href="stock.html">Clothes stock</a>
+      <a class="nav-button" href="gifts.html">Gift planner</a>
       <button id="prevWeek" class="ghost" type="button" aria-label="Previous week">←</button>
       <button id="todayWeek" type="button">This week</button>
       <button id="nextWeek" class="ghost" type="button" aria-label="Next week">→</button>
@@ -24,17 +26,28 @@
 
   <main class="layout">
     <aside class="sidebar">
+      <section class="panel starter-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Life admin system</p>
+            <h2>Starter setup</h2>
+          </div>
+        </div>
+        <p class="hint">Adds your study, daily reset, cleaning, room setup, clothes, creative, rest, and weekly review rules. You can archive anything you do not need.</p>
+        <button id="loadStarter" type="button">Load life-admin starter pack</button>
+      </section>
+
       <section class="panel">
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Step 1</p>
+            <p class="eyebrow">Recurring</p>
             <h2>Add a weekly task</h2>
           </div>
         </div>
         <form id="taskForm" class="task-form">
           <label>
             Task name
-            <input id="taskName" name="taskName" type="text" placeholder="Study, gym, laundry..." autocomplete="off" required>
+            <input id="taskName" name="taskName" type="text" placeholder="Exam study, vacuum, journal..." autocomplete="off" required>
           </label>
           <div class="form-row">
             <label>
@@ -48,6 +61,32 @@
           </div>
           <div class="form-row">
             <label>
+              Type
+              <select id="taskType" name="taskType">
+                <option>Study</option>
+                <option>Daily Reset</option>
+                <option>Admin</option>
+                <option>Cleaning</option>
+                <option>Room Setup</option>
+                <option>Shopping</option>
+                <option>Clothes</option>
+                <option>Creative</option>
+                <option>Life Planning</option>
+                <option>Rest</option>
+              </select>
+            </label>
+            <label>
+              Priority
+              <select id="taskPriority" name="taskPriority">
+                <option>Highest</option>
+                <option selected>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
               Energy
               <select id="taskEnergy" name="taskEnergy">
                 <option value="low">Low</option>
@@ -57,14 +96,83 @@
             </label>
             <label>
               Category
-              <input id="taskCategory" name="taskCategory" type="text" placeholder="school, health...">
+              <input id="taskCategory" name="taskCategory" type="text" placeholder="school, room, clothes...">
             </label>
           </div>
           <label>
             Tiny first step
-            <input id="taskStep" name="taskStep" type="text" placeholder="Open notes, put shoes on...">
+            <input id="taskStep" name="taskStep" type="text" placeholder="Open notes, collect cups, pick 5 items...">
+          </label>
+          <label>
+            Details shown on calendar
+            <textarea id="taskDetails" name="taskDetails" rows="3" placeholder="Add context, rules, or what counts as done."></textarea>
           </label>
           <button type="submit">Create weekly task</button>
+        </form>
+      </section>
+
+      <section class="panel one-off-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">One-off</p>
+            <h2>Add a removable task</h2>
+          </div>
+        </div>
+        <p class="hint">Use this for temporary things like “measure window”, “buy sticky paper”, “list 5 tops”, or “install hanger”. One-off cards have a Remove button.</p>
+        <form id="oneOffForm" class="task-form compact-form">
+          <label>
+            One-off task
+            <input id="oneOffName" name="oneOffName" type="text" placeholder="Measure window for mesh..." autocomplete="off" required>
+          </label>
+          <div class="form-row">
+            <label>
+              Minutes
+              <input id="oneOffDuration" name="oneOffDuration" type="number" min="5" max="360" step="5" value="30" required>
+            </label>
+            <label>
+              Type
+              <select id="oneOffType" name="oneOffType">
+                <option>Admin</option>
+                <option>Study</option>
+                <option>Daily Reset</option>
+                <option>Cleaning</option>
+                <option>Room Setup</option>
+                <option>Shopping</option>
+                <option>Clothes</option>
+                <option>Creative</option>
+                <option>Life Planning</option>
+                <option>Rest</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              Priority
+              <select id="oneOffPriority" name="oneOffPriority">
+                <option>Highest</option>
+                <option>High</option>
+                <option selected>Medium</option>
+                <option>Low</option>
+              </select>
+            </label>
+            <label>
+              Energy
+              <select id="oneOffEnergy" name="oneOffEnergy">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            Tiny first step
+            <input id="oneOffStep" name="oneOffStep" type="text" placeholder="Take photo, open message, grab tape measure...">
+          </label>
+          <label>
+            Details shown on calendar
+            <textarea id="oneOffDetails" name="oneOffDetails" rows="2" placeholder="What needs to happen? Links, measurements, notes..."></textarea>
+          </label>
+          <button type="submit">Add one-off card</button>
         </form>
       </section>
 
@@ -138,7 +246,10 @@
     <article class="task-card" draggable="true">
       <div class="task-main">
         <div>
-          <h3></h3>
+          <div class="card-title-row">
+            <h3></h3>
+            <span class="type-badge"></span>
+          </div>
           <p class="task-meta"></p>
         </div>
         <span class="status-dot"></span>
@@ -147,7 +258,9 @@
       <div class="card-actions">
         <button class="done-button" type="button">Done</button>
         <button class="skip-button ghost" type="button">Skip</button>
+        <button class="details-button ghost" type="button">Details</button>
         <button class="unschedule-button ghost" type="button">Unplan</button>
+        <button class="remove-button danger" type="button">Remove</button>
       </div>
     </article>
   </template>
