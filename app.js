@@ -1,4 +1,5 @@
-const STORAGE_KEY = "focus-week-planner-v1";
+const STORAGE_KEY = "focus-week-planner-v2";
+const OLD_STORAGE_KEY = "focus-week-planner-v1";
 const state = loadState();
 let selectedWeekStart = startOfWeek(new Date());
 let selectedInstanceId = null;
@@ -11,8 +12,20 @@ const els = {
   taskFrequency: document.getElementById("taskFrequency"),
   taskDuration: document.getElementById("taskDuration"),
   taskEnergy: document.getElementById("taskEnergy"),
+  taskType: document.getElementById("taskType"),
+  taskPriority: document.getElementById("taskPriority"),
   taskCategory: document.getElementById("taskCategory"),
   taskStep: document.getElementById("taskStep"),
+  taskDetails: document.getElementById("taskDetails"),
+  oneOffForm: document.getElementById("oneOffForm"),
+  oneOffName: document.getElementById("oneOffName"),
+  oneOffDuration: document.getElementById("oneOffDuration"),
+  oneOffEnergy: document.getElementById("oneOffEnergy"),
+  oneOffType: document.getElementById("oneOffType"),
+  oneOffPriority: document.getElementById("oneOffPriority"),
+  oneOffStep: document.getElementById("oneOffStep"),
+  oneOffDetails: document.getElementById("oneOffDetails"),
+  loadStarter: document.getElementById("loadStarter"),
   prevWeek: document.getElementById("prevWeek"),
   todayWeek: document.getElementById("todayWeek"),
   nextWeek: document.getElementById("nextWeek"),
@@ -50,13 +63,16 @@ function bindEvents() {
   els.taskForm.addEventListener("submit", event => {
     event.preventDefault();
     const task = {
-      id: crypto.randomUUID(),
+      id: makeId(),
       name: els.taskName.value.trim(),
       frequency: clamp(Number(els.taskFrequency.value), 1, 14),
       duration: clamp(Number(els.taskDuration.value), 5, 360),
       energy: els.taskEnergy.value,
+      type: els.taskType.value,
+      priority: els.taskPriority.value,
       category: els.taskCategory.value.trim(),
       step: els.taskStep.value.trim(),
+      details: els.taskDetails.value.trim(),
       archived: false,
       createdAt: new Date().toISOString()
     };
@@ -69,6 +85,46 @@ function bindEvents() {
     els.taskFrequency.value = "3";
     els.taskDuration.value = "45";
     els.taskEnergy.value = "medium";
+    els.taskType.value = "Study";
+    els.taskPriority.value = "High";
+    render();
+  });
+
+  els.oneOffForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const title = els.oneOffName.value.trim();
+    if (!title) return;
+    const week = state.weeks[currentWeekKey()];
+    week.instances.push({
+      id: makeId(),
+      source: "one-off",
+      title,
+      duration: clamp(Number(els.oneOffDuration.value), 5, 360),
+      energy: els.oneOffEnergy.value,
+      type: els.oneOffType.value,
+      priority: els.oneOffPriority.value,
+      category: els.oneOffType.value,
+      step: els.oneOffStep.value.trim(),
+      details: els.oneOffDetails.value.trim(),
+      scheduledAt: null,
+      status: "unscheduled",
+      note: "",
+      notified: false,
+      removable: true,
+      createdAt: new Date().toISOString()
+    });
+    saveState();
+    els.oneOffForm.reset();
+    els.oneOffDuration.value = "30";
+    els.oneOffEnergy.value = "medium";
+    els.oneOffType.value = "Admin";
+    els.oneOffPriority.value = "Medium";
+    render();
+  });
+
+  els.loadStarter.addEventListener("click", () => {
+    const added = addLifeAdminStarterPack();
+    alert(added ? `Added ${added} life-admin task rules.` : "The starter pack is already loaded.");
     render();
   });
 
@@ -123,7 +179,7 @@ function changeWeek(days) {
 
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(OLD_STORAGE_KEY);
     return raw ? JSON.parse(raw) : defaultState();
   } catch (error) {
     console.warn("Could not load planner data", error);
@@ -156,6 +212,22 @@ function normalizeState() {
   state.settings.calmMode ??= false;
   state.settings.hideDone ??= false;
   state.settings.reminders ??= false;
+  state.tasks.forEach(task => {
+    task.type ||= guessType(task.name);
+    task.priority ||= "Medium";
+    task.details ||= "";
+    task.step ||= "";
+  });
+  Object.values(state.weeks).forEach(week => {
+    week.instances ||= [];
+    week.instances.forEach(instance => {
+      instance.source ||= instance.taskId ? "recurring" : "one-off";
+      instance.status ||= instance.scheduledAt ? "scheduled" : "unscheduled";
+      instance.note ||= "";
+      instance.details ||= "";
+      instance.removable = instance.source === "one-off" || Boolean(instance.removable);
+    });
+  });
 }
 
 function saveState() {
@@ -196,7 +268,8 @@ function ensureWeek() {
     const existing = week.instances.filter(instance => instance.taskId === task.id && !instance.deleted);
     for (let i = existing.length; i < task.frequency; i += 1) {
       week.instances.push({
-        id: crypto.randomUUID(),
+        id: makeId(),
+        source: "recurring",
         taskId: task.id,
         sequence: i + 1,
         weekKey: key,
@@ -217,6 +290,26 @@ function getWeekInstances() {
 
 function getTask(taskId) {
   return state.tasks.find(task => task.id === taskId);
+}
+
+function modelFor(instance) {
+  const task = instance.taskId ? getTask(instance.taskId) : null;
+  const isOneOff = instance.source === "one-off" || !instance.taskId;
+  return {
+    id: instance.id,
+    title: isOneOff ? instance.title : `${task?.name || "Missing task"} ${instance.sequence || 1}/${task?.frequency || 1}`,
+    baseTitle: isOneOff ? instance.title : task?.name || "Missing task",
+    duration: instance.duration || task?.duration || 30,
+    energy: instance.energy || task?.energy || "medium",
+    type: instance.type || task?.type || guessType(task?.name || instance.title || ""),
+    priority: instance.priority || task?.priority || "Medium",
+    category: instance.category || task?.category || "",
+    step: instance.step || task?.step || "",
+    details: instance.details || task?.details || "",
+    note: instance.note || "",
+    isOneOff,
+    task
+  };
 }
 
 function render() {
@@ -240,36 +333,38 @@ function renderWeekSummary() {
   const instances = getWeekInstances();
   const scheduled = instances.filter(item => item.scheduledAt).length;
   const done = instances.filter(item => item.status === "done").length;
-  els.progressText.textContent = `${scheduled}/${instances.length} scheduled • ${done}/${instances.length} done`;
+  const oneOff = instances.filter(item => modelFor(item).isOneOff).length;
+  els.progressText.textContent = `${scheduled}/${instances.length} scheduled • ${done}/${instances.length} done • ${oneOff} one-off`;
 }
 
 function renderUnscheduled() {
   els.unscheduledList.innerHTML = "";
   const items = getWeekInstances().filter(instance => !instance.scheduledAt && instance.status !== "done" && instance.status !== "skipped");
   els.unscheduledCount.textContent = String(items.length);
-  items.forEach(instance => els.unscheduledList.appendChild(createInstanceCard(instance)));
+  items.sort(sortByPriority).forEach(instance => els.unscheduledList.appendChild(createInstanceCard(instance)));
 }
 
 function renderTaskLibrary() {
   els.taskLibrary.innerHTML = "";
   const tasks = state.tasks.filter(task => !task.archived);
   if (!tasks.length) {
-    els.taskLibrary.innerHTML = `<p class="hint">Add one rule above. Example: “Study”, 3× per week, 45 minutes.</p>`;
+    els.taskLibrary.innerHTML = `<p class="hint">Add rules above, or load the life-admin starter pack.</p>`;
     return;
   }
 
-  tasks.forEach(task => {
+  tasks.sort((a, b) => priorityRank(a.priority) - priorityRank(b.priority) || a.name.localeCompare(b.name)).forEach(task => {
     const card = document.createElement("article");
     card.className = "rule-card";
     const instances = getWeekInstances().filter(instance => instance.taskId === task.id && !instance.deleted);
     const placed = instances.filter(instance => instance.scheduledAt).length;
     card.innerHTML = `
       <h3>${escapeHtml(task.name)}</h3>
-      <p>${task.frequency}× weekly • ${task.duration} min • ${escapeHtml(task.energy)} energy${task.category ? ` • ${escapeHtml(task.category)}` : ""}</p>
-      <p>${placed}/${instances.length} placed this week</p>
+      <p>${task.frequency}× weekly • ${task.duration} min • ${escapeHtml(task.priority)} • ${escapeHtml(task.type)}</p>
+      <p>${placed}/${instances.length} placed this week${task.step ? ` • First: ${escapeHtml(task.step)}` : ""}</p>
       <div class="rule-actions">
         <button type="button" class="ghost" data-action="add-instance">+1 this week</button>
         <button type="button" class="ghost" data-action="edit-frequency">Change ×/week</button>
+        <button type="button" class="ghost" data-action="edit-details">Details</button>
         <button type="button" class="ghost" data-action="archive">Archive</button>
       </div>
     `;
@@ -284,6 +379,14 @@ function renderTaskLibrary() {
       if (next === null) return;
       task.frequency = clamp(Number(next), 1, 14);
       ensureWeek();
+      saveState();
+      render();
+    });
+
+    card.querySelector('[data-action="edit-details"]').addEventListener("click", () => {
+      const next = prompt(`Details for "${task.name}"`, task.details || task.step || "");
+      if (next === null) return;
+      task.details = next.trim();
       saveState();
       render();
     });
@@ -304,7 +407,8 @@ function addManualInstance(task) {
   const week = state.weeks[currentWeekKey()];
   const count = week.instances.filter(instance => instance.taskId === task.id && !instance.deleted).length;
   week.instances.push({
-    id: crypto.randomUUID(),
+    id: makeId(),
+    source: "recurring-extra",
     taskId: task.id,
     sequence: count + 1,
     weekKey: currentWeekKey(),
@@ -313,6 +417,7 @@ function addManualInstance(task) {
     status: "unscheduled",
     note: "",
     notified: false,
+    removable: true,
     createdAt: new Date().toISOString()
   });
   saveState();
@@ -377,33 +482,42 @@ function scheduledForSlot(dayIndex, minutes) {
     instanceDay.setHours(0, 0, 0, 0);
     const instanceMinutes = date.getHours() * 60 + date.getMinutes();
     return instanceDay.getTime() === dayStart.getTime() && instanceMinutes === minutes;
-  }).sort((a, b) => (getTask(a.taskId)?.name || "").localeCompare(getTask(b.taskId)?.name || ""));
+  }).sort(sortByPriority);
 }
 
 function createInstanceCard(instance) {
-  const task = getTask(instance.taskId);
+  const data = modelFor(instance);
   const card = els.cardTemplate.content.firstElementChild.cloneNode(true);
-  const title = task ? `${task.name} ${instance.sequence}/${task.frequency}` : "Missing task";
-  const duration = instance.duration || task?.duration || 30;
   card.dataset.instanceId = instance.id;
   card.classList.toggle("selected", selectedInstanceId === instance.id);
   card.classList.toggle("done", instance.status === "done");
   card.classList.toggle("skipped", instance.status === "skipped");
-  card.querySelector("h3").textContent = title;
+  card.classList.toggle("one-off", data.isOneOff);
+  card.querySelector("h3").textContent = data.title;
   card.querySelector(".task-meta").textContent = [
-    `${duration} min`,
-    task?.energy || "medium",
-    task?.category || "",
+    `${data.duration} min`,
+    data.priority,
+    data.type,
+    data.energy,
     instance.scheduledAt ? formatDateTime(new Date(instance.scheduledAt)) : "not planned"
   ].filter(Boolean).join(" • ");
-  card.querySelector(".tiny-step").textContent = task?.step ? `First step: ${task.step}` : "";
-  card.querySelector(".status-dot").classList.add(task?.energy || "medium");
+  card.querySelector(".tiny-step").textContent = [
+    data.step ? `First step: ${data.step}` : "",
+    data.details ? `Details: ${data.details}` : "",
+    data.note ? `Note: ${data.note}` : ""
+  ].filter(Boolean).join("\n");
+  card.querySelector(".status-dot").classList.add(data.energy || "medium");
+  card.querySelector(".type-badge").textContent = data.isOneOff ? "one-off" : data.type;
+  card.querySelector(".type-badge").classList.toggle("one-off-badge", data.isOneOff);
+
+  const removeButton = card.querySelector(".remove-button");
+  removeButton.hidden = !data.isOneOff && !instance.removable;
 
   card.addEventListener("dragstart", event => {
     selectedInstanceId = instance.id;
     event.dataTransfer.setData("text/plain", instance.id);
     event.dataTransfer.effectAllowed = "move";
-    render();
+    requestAnimationFrame(render);
   });
 
   card.addEventListener("click", event => {
@@ -413,13 +527,21 @@ function createInstanceCard(instance) {
   });
 
   card.querySelector(".done-button").addEventListener("click", () => {
-    instance.status = instance.status === "done" ? "scheduled" : "done";
+    instance.status = instance.status === "done" ? (instance.scheduledAt ? "scheduled" : "unscheduled") : "done";
     saveState();
     render();
   });
 
   card.querySelector(".skip-button").addEventListener("click", () => {
-    instance.status = instance.status === "skipped" ? "scheduled" : "skipped";
+    instance.status = instance.status === "skipped" ? (instance.scheduledAt ? "scheduled" : "unscheduled") : "skipped";
+    saveState();
+    render();
+  });
+
+  card.querySelector(".details-button").addEventListener("click", () => {
+    const next = prompt(`Notes/details for "${data.baseTitle}"`, instance.note || data.details || "");
+    if (next === null) return;
+    instance.note = next.trim();
     saveState();
     render();
   });
@@ -428,6 +550,15 @@ function createInstanceCard(instance) {
     instance.scheduledAt = null;
     instance.status = "unscheduled";
     instance.notified = false;
+    saveState();
+    render();
+  });
+
+  removeButton.addEventListener("click", () => {
+    const ok = confirm(`Remove "${data.baseTitle}" from this week?`);
+    if (!ok) return;
+    instance.deleted = true;
+    selectedInstanceId = null;
     saveState();
     render();
   });
@@ -452,7 +583,7 @@ function renderFocusPanel() {
   const now = new Date();
   const todayInstances = getWeekInstances()
     .filter(instance => instance.scheduledAt && instance.status !== "done" && instance.status !== "skipped")
-    .map(instance => ({ instance, when: new Date(instance.scheduledAt), task: getTask(instance.taskId) }))
+    .map(instance => ({ instance, when: new Date(instance.scheduledAt), data: modelFor(instance) }))
     .filter(item => isSameDate(item.when, now))
     .sort((a, b) => a.when - b.when);
   const next = todayInstances.find(item => item.when >= now) || todayInstances[0];
@@ -461,13 +592,13 @@ function renderFocusPanel() {
     const unplanned = getWeekInstances().find(instance => !instance.scheduledAt && instance.status === "unscheduled");
     els.focusTitle.textContent = unplanned ? "Pick one small thing" : "Today focus";
     els.focusText.textContent = unplanned
-      ? `Try placing "${getTask(unplanned.taskId)?.name || "a task"}" somewhere today.`
+      ? `Try placing "${modelFor(unplanned).baseTitle}" somewhere today.`
       : "Nothing left for today. Nice.";
     return;
   }
 
-  els.focusTitle.textContent = next.task?.name || "Next task";
-  els.focusText.textContent = `${formatDateTime(next.when)} • ${next.instance.duration || next.task?.duration || 30} min${next.task?.step ? ` • First step: ${next.task.step}` : ""}`;
+  els.focusTitle.textContent = next.data.baseTitle;
+  els.focusText.textContent = `${formatDateTime(next.when)} • ${next.data.duration} min • ${next.data.priority}${next.data.step ? ` • First step: ${next.data.step}` : ""}`;
 }
 
 function toggleFocusTimer() {
@@ -512,9 +643,9 @@ function checkReminders() {
     const when = new Date(instance.scheduledAt).getTime();
     const minutesAway = (when - now) / 60000;
     if (minutesAway > 0 && minutesAway <= 5) {
-      const task = getTask(instance.taskId);
-      new Notification(`Upcoming: ${task?.name || "Task"}`, {
-        body: `${Math.round(minutesAway)} min away${task?.step ? `. First step: ${task.step}` : "."}`
+      const data = modelFor(instance);
+      new Notification(`Upcoming: ${data.baseTitle}`, {
+        body: `${Math.round(minutesAway)} min away${data.step ? `. First step: ${data.step}` : "."}`
       });
       instance.notified = true;
       saveState();
@@ -556,12 +687,76 @@ function importPlannerData(event) {
   reader.readAsText(file);
 }
 
+function addLifeAdminStarterPack() {
+  const starter = [
+    ["Exam study", 5, 90, "high", "Study", "Highest", "Open exam plan and do the next block", "Protect this before room projects."],
+    ["Note taking", 5, 45, "medium", "Study", "Highest", "Open notes/documents", "Daily or weekday study habit."],
+    ["Clean notes", 3, 45, "medium", "Study", "High", "Pick one messy section", "Turn rough notes into usable revision material."],
+    ["Reply to messages", 7, 10, "low", "Admin", "High", "Reply to the easiest one first", "Use as a daily admin reset."],
+    ["Take out crockery", 7, 10, "low", "Daily Reset", "High", "Collect plates/cups before leaving room", "Never leave the room empty-handed."],
+    ["Rubbish out", 7, 10, "low", "Daily Reset", "High", "Grab visible rubbish first", "When full, take it out immediately."],
+    ["Recycling out", 2, 10, "low", "Daily Reset", "Medium", "Flatten boxes/bottles", "Do with rubbish if possible."],
+    ["Make shopping list", 2, 15, "low", "Shopping", "High", "Add missing essentials", "Keep adding to it during resets."],
+    ["Vacuum", 1, 30, "medium", "Cleaning", "Medium", "Clear floor first", "Weekly bigger clean."],
+    ["Surfaces, mirror, windows", 1, 30, "medium", "Cleaning", "Medium", "Start with desk or mirror", "Rotate walls/windows/mirror if too much."],
+    ["Room setup project", 1, 45, "medium", "Room Setup", "High", "Choose one setup action", "Food storage, makeup storage, shelves, labels, bug/noise solution."],
+    ["Clothes admin", 1, 45, "medium", "Clothes", "Medium", "Pick 5 easy items", "Stock list, photos, listing, sell/upscale decisions."],
+    ["Journal", 4, 10, "low", "Life Planning", "Medium", "Write three lines", "Evening low-energy close-down."],
+    ["Learn keyboard", 3, 20, "medium", "Creative", "Medium", "Practice one tiny section", "Do not let it compete with exam study."],
+    ["Weekly review", 1, 30, "medium", "Life Planning", "High", "Plan next week and remove clutter", "Check what to reduce during exam-heavy weeks."],
+    ["Gaming/rest block", 2, 60, "low", "Rest", "Low", "Choose a stopping point first", "Reward/rest after priority blocks."]
+  ];
+
+  let added = 0;
+  starter.forEach(([name, frequency, duration, energy, type, priority, step, details]) => {
+    const exists = state.tasks.some(task => task.name.toLowerCase() === name.toLowerCase() && !task.archived);
+    if (exists) return;
+    state.tasks.push({
+      id: makeId(),
+      name,
+      frequency,
+      duration,
+      energy,
+      type,
+      priority,
+      category: type,
+      step,
+      details,
+      archived: false,
+      createdAt: new Date().toISOString()
+    });
+    added += 1;
+  });
+  ensureWeek();
+  saveState();
+  return added;
+}
+
 function slotMinutes() {
   const out = [];
   const start = state.settings.awakeStart * 60;
   const end = state.settings.awakeEnd * 60;
   for (let value = start; value <= end; value += state.settings.slotMinutes) out.push(value);
   return out;
+}
+
+function sortByPriority(a, b) {
+  return priorityRank(modelFor(a).priority) - priorityRank(modelFor(b).priority) || modelFor(a).baseTitle.localeCompare(modelFor(b).baseTitle);
+}
+
+function priorityRank(priority) {
+  return { Highest: 0, High: 1, Medium: 2, Low: 3 }[priority] ?? 2;
+}
+
+function guessType(name) {
+  const value = String(name).toLowerCase();
+  if (value.includes("exam") || value.includes("note")) return "Study";
+  if (value.includes("rubbish") || value.includes("crockery") || value.includes("recycling")) return "Daily Reset";
+  if (value.includes("vacuum") || value.includes("clean") || value.includes("surface")) return "Cleaning";
+  if (value.includes("clothes") || value.includes("sell") || value.includes("stock")) return "Clothes";
+  if (value.includes("gift") || value.includes("journal") || value.includes("review")) return "Life Planning";
+  if (value.includes("gaming")) return "Rest";
+  return "Admin";
 }
 
 function formatMinutes(minutes) {
@@ -589,6 +784,10 @@ function isSameDate(a, b) {
 function clamp(value, min, max) {
   if (Number.isNaN(value)) return min;
   return Math.max(min, Math.min(max, value));
+}
+
+function makeId() {
+  return crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 function escapeHtml(value) {
