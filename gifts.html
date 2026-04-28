@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gift Planner</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="life-admin.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Life admin database</p>
+      <h1>Gift planner.</h1>
+      <p class="subtitle">Track birthdays, Christmas ideas, budget, bought/wrapped/given status, and notes. Put “gift planning” blocks into the calendar when you want to work on it.</p>
+    </div>
+    <div class="header-actions">
+      <a class="nav-button" href="index.html">Calendar</a>
+      <a class="nav-button" href="stock.html">Clothes stock</a>
+    </div>
+  </header>
+
+  <main class="table-app">
+    <section class="panel table-toolbar">
+      <div>
+        <p class="week-label">Birthday and Christmas planning</p>
+        <p class="hint">Good for monthly review, not daily clutter. Export regularly if this becomes important.</p>
+      </div>
+      <div class="toggles">
+        <button id="addRow" type="button">Add gift</button>
+        <button id="seedRows" class="ghost" type="button">Load starter rows</button>
+        <button id="exportRows" class="ghost" type="button">Export</button>
+        <label class="file-button">Import<input id="importRows" type="file" accept="application/json"></label>
+      </div>
+    </section>
+
+    <section class="panel table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Person</th>
+            <th>Occasion</th>
+            <th>Date</th>
+            <th>Budget</th>
+            <th>Ideas</th>
+            <th>Bought</th>
+            <th>Wrapped</th>
+            <th>Given</th>
+            <th>Shopping list item</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    window.TABLE_APP_CONFIG = {
+      key: "gift-planner",
+      columns: [
+        { key: "person" },
+        { key: "occasion", type: "select", options: ["Birthday", "Christmas", "Thank you", "Other"], default: "Birthday" },
+        { key: "date", type: "date" },
+        { key: "budget" },
+        { key: "ideas", type: "textarea" },
+        { key: "bought", type: "select", options: ["No", "Yes"], default: "No" },
+        { key: "wrapped", type: "select", options: ["No", "Yes"], default: "No" },
+        { key: "given", type: "select", options: ["No", "Yes"], default: "No" },
+        { key: "shopping", type: "textarea" },
+        { key: "notes", type: "textarea" }
+      ],
+      sampleRows: [
+        { person: "Example person", occasion: "Birthday", date: "", budget: "", ideas: "", bought: "No", wrapped: "No", given: "No", shopping: "", notes: "Add during monthly gift planning block" },
+        { person: "Christmas list", occasion: "Christmas", date: "", budget: "", ideas: "", bought: "No", wrapped: "No", given: "No", shopping: "", notes: "Review monthly, more often near December" }
+      ]
+    };
+  </script>
+  <script src="table-app.js"></script>
+</body>
+</html>
