@@ -15,7 +15,8 @@
       <p class="subtitle">Use this if the planner is not responding, looks old, or the browser is showing cached files.</p>
     </div>
     <div class="header-actions">
-      <a class="nav-button" href="index.html">Back to planner</a>
+      <a class="nav-button" href="safe.html">Open safe planner</a>
+      <a class="nav-button" href="index.html">Open full planner</a>
       <a class="nav-button" href="home.html">Dashboard</a>
     </div>
   </header>
@@ -25,7 +26,7 @@
       <p class="eyebrow">Safe update</p>
       <h2>Clear app cache</h2>
       <p class="hint">This clears the offline/PWA cache and unregisters the service worker. It does not delete your planner tasks, timers, goals, logs, clothes stock, or gift planner data from localStorage.</p>
-      <button id="updateNow" type="button">Clear cache and reload newest planner</button>
+      <button id="updateNow" type="button">Clear cache and open safe planner</button>
       <p id="status" class="hint">Ready.</p>
     </section>
   </main>
@@ -43,12 +44,12 @@
           const keys = await caches.keys();
           await Promise.all(keys.map(key => caches.delete(key)));
         }
-        status.textContent = 'Done. Opening the newest planner...';
+        status.textContent = 'Done. Opening safe planner...';
         const version = Date.now();
-        setTimeout(() => location.href = `index.html?fresh=${version}`, 500);
+        setTimeout(() => location.href = `safe.html?fresh=${version}`, 500);
       } catch (error) {
         console.error(error);
-        status.textContent = 'Something went wrong. Try opening index.html?fresh=' + Date.now();
+        status.textContent = 'Something went wrong. Try opening safe.html?fresh=' + Date.now();
       }
     });
   </script>
