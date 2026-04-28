@@ -177,17 +177,29 @@
 
   function injectTimerButtons() {
     document.querySelectorAll(".task-card[data-instance-id]").forEach(card => {
-      if (card.querySelector(".task-timer-button")) return;
       const id = card.dataset.instanceId;
       const title = card.querySelector("h3")?.textContent?.replace(/ \d+\/\d+$/, "") || "Task";
       const session = readSession();
       const timer = session.timers[id] || { seconds: 0 };
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "ghost task-timer-button";
+      let button = card.querySelector(".task-timer-button");
+      if (!button) {
+        button = document.createElement("button");
+        button.type = "button";
+        button.className = "ghost task-timer-button";
+        button.addEventListener("click", event => { event.stopPropagation(); toggleTimer(id, title); });
+        card.querySelector(".card-actions")?.appendChild(button);
+      }
       button.textContent = `${activeTimerId === id ? "Pause" : "Timer"} ${fmtSeconds(timer.seconds)}`;
-      button.addEventListener("click", event => { event.stopPropagation(); toggleTimer(id, title); });
-      card.querySelector(".card-actions")?.appendChild(button);
+
+      let reset = card.querySelector(".task-timer-reset");
+      if (!reset) {
+        reset = document.createElement("button");
+        reset.type = "button";
+        reset.className = "ghost task-timer-reset";
+        reset.textContent = "Reset time";
+        reset.addEventListener("click", event => { event.stopPropagation(); resetTimer(id, title); });
+        card.querySelector(".card-actions")?.appendChild(reset);
+      }
     });
   }
 
@@ -214,6 +226,17 @@
       }, 1000);
       session.logs.push({ at: new Date().toISOString(), type: "timer-start", instanceId, title });
     }
+    writeSession(session);
+    injectTimerButtons();
+    updateSummary();
+  }
+
+  function resetTimer(instanceId, title) {
+    const session = readSession();
+    const previous = session.timers[instanceId]?.seconds || 0;
+    session.timers[instanceId] = { title, seconds: 0, day: todayKey(), updatedAt: new Date().toISOString() };
+    if (activeTimerId === instanceId) { activeTimerId = null; clearInterval(timerTick); }
+    session.logs.push({ at: new Date().toISOString(), type: "timer-reset", instanceId, title, previousSeconds: previous });
     writeSession(session);
     injectTimerButtons();
     updateSummary();
