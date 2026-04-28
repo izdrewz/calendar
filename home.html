@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tmazing Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="life-admin.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Tmazing Dashboard</p>
+      <h1>One place to launch your tools.</h1>
+      <p class="subtitle">Open your planner, uni hub, PDF cleaner, clothes stock list, and gift planner. Check backups and launch the app you need for the session.</p>
+    </div>
+    <div class="header-actions">
+      <a class="nav-button" href="index.html">Planner</a>
+      <a class="nav-button" href="stock.html">Clothes</a>
+      <a class="nav-button" href="gifts.html">Gifts</a>
+    </div>
+  </header>
+
+  <main class="table-app dashboard-grid">
+    <section class="panel dashboard-card">
+      <p class="eyebrow">Life admin</p>
+      <h2>Focus Week Planner</h2>
+      <p class="hint">Drag tasks into the week, track timers, daily goals, unfinished carryover, and weekly reviews.</p>
+      <a class="nav-button" href="index.html">Open planner</a>
+    </section>
+
+    <section class="panel dashboard-card">
+      <p class="eyebrow">University</p>
+      <h2>Tmazing Uni Hub</h2>
+      <p class="hint">Deadlines, goals, source library, source checker, citations, bibliography, and study-session exports.</p>
+      <a class="nav-button" href="https://izdrewz.github.io/tmazing/">Open uni hub</a>
+    </section>
+
+    <section class="panel dashboard-card">
+      <p class="eyebrow">PDFs</p>
+      <h2>PDF Split Cleaner</h2>
+      <p class="hint">Original PDF beside editable reproduction, pattern cleanup, collapsible transcript blocks, and clean exports.</p>
+      <a class="nav-button" href="https://izdrewz.github.io/pdf/">Open PDF cleaner</a>
+    </section>
+
+    <section class="panel dashboard-card">
+      <p class="eyebrow">Inventory</p>
+      <h2>Clothes stock</h2>
+      <p class="hint">Track items to sell, keep, upscale, repair, photograph, list, and locate.</p>
+      <a class="nav-button" href="stock.html">Open clothes stock</a>
+    </section>
+
+    <section class="panel dashboard-card">
+      <p class="eyebrow">Planning</p>
+      <h2>Gift planner</h2>
+      <p class="hint">Track birthdays, Christmas, budgets, gift ideas, bought, wrapped, and given.</p>
+      <a class="nav-button" href="gifts.html">Open gift planner</a>
+    </section>
+
+    <section class="panel dashboard-card">
+      <p class="eyebrow">Backups</p>
+      <h2>Backup reminders</h2>
+      <p id="backupStatus" class="hint">Checking browser backup dates…</p>
+      <button id="markBackup" type="button">I exported backups today</button>
+    </section>
+  </main>
+
+  <script>
+    const key = 'tmazing-dashboard-backup-v1';
+    const status = document.getElementById('backupStatus');
+    const last = localStorage.getItem(key);
+    if (!last) status.textContent = 'No backup marked here yet. Export from each app before relying on browser storage.';
+    else {
+      const days = Math.floor((Date.now() - new Date(last).getTime()) / 86400000);
+      status.textContent = days === 0 ? 'Backups marked today.' : `Last backup marked ${days} day(s) ago.`;
+    }
+    document.getElementById('markBackup').addEventListener('click', () => {
+      localStorage.setItem(key, new Date().toISOString());
+      status.textContent = 'Backups marked today.';
+    });
+  </script>
+</body>
+</html>
