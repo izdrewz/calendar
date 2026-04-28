@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Update Focus Week Planner</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="life-admin.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Focus Week Planner</p>
+      <h1>Update / fix cached app files.</h1>
+      <p class="subtitle">Use this if the planner is not responding, looks old, or the browser is showing cached files.</p>
+    </div>
+    <div class="header-actions">
+      <a class="nav-button" href="index.html">Back to planner</a>
+      <a class="nav-button" href="home.html">Dashboard</a>
+    </div>
+  </header>
+
+  <main class="table-app">
+    <section class="panel dashboard-card">
+      <p class="eyebrow">Safe update</p>
+      <h2>Clear app cache</h2>
+      <p class="hint">This clears the offline/PWA cache and unregisters the service worker. It does not delete your planner tasks, timers, goals, logs, clothes stock, or gift planner data from localStorage.</p>
+      <button id="updateNow" type="button">Clear cache and reload newest planner</button>
+      <p id="status" class="hint">Ready.</p>
+    </section>
+  </main>
+
+  <script>
+    const status = document.getElementById('status');
+    document.getElementById('updateNow').addEventListener('click', async () => {
+      status.textContent = 'Clearing cached app files...';
+      try {
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map(reg => reg.unregister()));
+        }
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(key => caches.delete(key)));
+        }
+        status.textContent = 'Done. Opening the newest planner...';
+        const version = Date.now();
+        setTimeout(() => location.href = `index.html?fresh=${version}`, 500);
+      } catch (error) {
+        console.error(error);
+        status.textContent = 'Something went wrong. Try opening index.html?fresh=' + Date.now();
+      }
+    });
+  </script>
+</body>
+</html>
