@@ -1,13 +1,15 @@
-const CACHE_NAME = "focus-week-planner-v4";
+const CACHE_NAME = "focus-week-planner-v5-focused";
 const ASSETS = [
   "./",
-  "./home.html",
   "./index.html",
+  "./planner.html",
+  "./safe.html",
+  "./update.html",
   "./styles.css",
   "./life-admin.css",
   "./app.js",
-  "./planner-session.js",
-  "./calendar-export.js",
+  "./planner-piles.js",
+  "./ics-export-safe.js",
   "./manifest.webmanifest",
   "./stock.html",
   "./gifts.html",
