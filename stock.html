@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clothes Stock List</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="life-admin.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Life admin database</p>
+      <h1>Clothes stock list.</h1>
+      <p class="subtitle">Use this for selling, keeping, upscaling, repairs, photos, and box locations. Keep the calendar for action blocks like “photograph 5 items”.</p>
+    </div>
+    <div class="header-actions">
+      <a class="nav-button" href="index.html">Calendar</a>
+      <a class="nav-button" href="gifts.html">Gift planner</a>
+    </div>
+  </header>
+
+  <main class="table-app">
+    <section class="panel table-toolbar">
+      <div>
+        <p class="week-label">Wardrobe inventory</p>
+        <p class="hint">Everything saves in this browser. Export regularly if this becomes important.</p>
+      </div>
+      <div class="toggles">
+        <button id="addRow" type="button">Add item</button>
+        <button id="seedRows" class="ghost" type="button">Load starter rows</button>
+        <button id="exportRows" class="ghost" type="button">Export</button>
+        <label class="file-button">Import<input id="importRows" type="file" accept="application/json"></label>
+      </div>
+    </section>
+
+    <section class="panel table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Category</th>
+            <th>Size</th>
+            <th>Condition</th>
+            <th>Keep/Sell/Upscale</th>
+            <th>Platform</th>
+            <th>Price</th>
+            <th>Location</th>
+            <th>Photos</th>
+            <th>Listed</th>
+            <th>Sold</th>
+            <th>Repair needed</th>
+            <th>Listing title / outfit idea</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    window.TABLE_APP_CONFIG = {
+      key: "clothes-stock",
+      columns: [
+        { key: "item" },
+        { key: "category" },
+        { key: "size" },
+        { key: "condition", type: "select", options: ["New", "Excellent", "Good", "Okay", "Needs repair"], default: "Good" },
+        { key: "decision", type: "select", options: ["Keep", "Sell", "Upscale", "Donate", "Bin"], default: "Sell" },
+        { key: "platform", type: "select", options: ["Vinted", "Depop", "eBay", "Facebook", "Other", "Not listing"], default: "Vinted" },
+        { key: "price" },
+        { key: "location" },
+        { key: "photos", type: "select", options: ["No", "Yes"], default: "No" },
+        { key: "listed", type: "select", options: ["No", "Yes"], default: "No" },
+        { key: "sold", type: "select", options: ["No", "Yes"], default: "No" },
+        { key: "repair", type: "textarea" },
+        { key: "listing", type: "textarea" }
+      ],
+      sampleRows: [
+        { item: "Black top", category: "Top", size: "M", condition: "Good", decision: "Sell", platform: "Vinted", price: "", location: "Clothes to sell box", photos: "No", listed: "No", sold: "No", repair: "", listing: "" },
+        { item: "Ren faire dress", category: "Dress", size: "", condition: "Good", decision: "Upscale", platform: "Not listing", price: "", location: "Creative projects", photos: "No", listed: "No", sold: "No", repair: "Customising needed", listing: "Deadline / event date" },
+        { item: "Easy 5 item batch", category: "Mixed", size: "", condition: "Good", decision: "Sell", platform: "Vinted", price: "", location: "To photograph", photos: "No", listed: "No", sold: "No", repair: "", listing: "Use calendar task: photograph/list 5 items" }
+      ]
+    };
+  </script>
+  <script src="table-app.js"></script>
+</body>
+</html>
