@@ -1,6 +1,8 @@
 (() => {
   const PLANNER_KEYS = ["focus-week-planner-v2", "focus-week-planner-v1"];
   const EXPORT_LOG_KEY = "focus-week-planner-export-log-v1";
+  const GROUP_STATE_KEY = "focus-week-planner-unscheduled-groups-v1";
+  let groupingNow = false;
 
   function readPlanner() {
     for (const key of PLANNER_KEYS) {
@@ -111,6 +113,117 @@
     target.appendChild(button);
   }
 
+  const groups = [
+    { id: "uni", title: "Uni / study", emoji: "📚", matches: ["study", "exam", "note", "clean notes"] },
+    { id: "self-care", title: "Self care / reset", emoji: "🌿", matches: ["daily reset", "rest", "journal", "gaming"] },
+    { id: "personal", title: "Personal / admin", emoji: "🧾", matches: ["admin", "shopping", "life planning", "gift", "messages"] },
+    { id: "cleaning", title: "Cleaning", emoji: "🧽", matches: ["cleaning", "vacuum", "surface", "mirror", "windows"] },
+    { id: "projects", title: "Projects / room setup", emoji: "🧰", matches: ["room setup", "project", "shelves", "storage", "bug", "noise"] },
+    { id: "crafts", title: "Crafts / creative", emoji: "🎨", matches: ["creative", "craft", "crochet", "keyboard", "dress", "upscale"] },
+    { id: "clothes", title: "Clothes", emoji: "👕", matches: ["clothes", "sell", "stock", "vinted", "upscale"] },
+    { id: "one-off", title: "One-off / temporary", emoji: "📌", matches: ["one-off"] },
+    { id: "other", title: "Other", emoji: "✨", matches: [] }
+  ];
+
+  function readGroupState() {
+    try { return JSON.parse(localStorage.getItem(GROUP_STATE_KEY)) || {}; }
+    catch { return {}; }
+  }
+  function writeGroupState(value) {
+    localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(value));
+  }
+  function textOf(card) {
+    return [
+      card.querySelector("h3")?.textContent,
+      card.querySelector(".type-badge")?.textContent,
+      card.querySelector(".task-meta")?.textContent,
+      card.querySelector(".tiny-step")?.textContent,
+      card.classList.contains("one-off") ? "one-off" : ""
+    ].join(" ").toLowerCase();
+  }
+  function groupFor(card) {
+    const text = textOf(card);
+    if (text.includes("one-off")) return groups.find(group => group.id === "one-off");
+    return groups.find(group => group.id !== "one-off" && group.id !== "other" && group.matches.some(match => text.includes(match))) || groups.find(group => group.id === "other");
+  }
+
+  function groupUnscheduledPile() {
+    if (groupingNow) return;
+    const list = document.getElementById("unscheduledList");
+    if (!list) return;
+    const directCards = [...list.children].filter(child => child.classList?.contains("task-card"));
+    if (!directCards.length) return;
+
+    groupingNow = true;
+    const collapsed = readGroupState();
+    const buckets = new Map(groups.map(group => [group.id, []]));
+    directCards.forEach(card => buckets.get(groupFor(card).id).push(card));
+
+    list.innerHTML = "";
+    list.classList.add("grouped-unscheduled-list");
+
+    groups.forEach(group => {
+      const cards = buckets.get(group.id) || [];
+      if (!cards.length) return;
+      const section = document.createElement("section");
+      section.className = "task-group-section";
+      section.dataset.group = group.id;
+      const isClosed = Boolean(collapsed[group.id]);
+      section.innerHTML = `
+        <button class="task-group-header" type="button" aria-expanded="${String(!isClosed)}">
+          <span><span class="task-group-emoji">${group.emoji}</span>${group.title}</span>
+          <span class="task-group-count">${cards.length}</span>
+        </button>
+        <div class="task-group-cards" ${isClosed ? "hidden" : ""}></div>
+      `;
+      const body = section.querySelector(".task-group-cards");
+      cards.forEach(card => body.appendChild(card));
+      section.querySelector(".task-group-header").addEventListener("click", () => {
+        const next = !body.hidden;
+        body.hidden = next;
+        section.querySelector(".task-group-header").setAttribute("aria-expanded", String(!next));
+        const state = readGroupState();
+        state[group.id] = next;
+        writeGroupState(state);
+      });
+      list.appendChild(section);
+    });
+    groupingNow = false;
+  }
+
+  function injectGroupControls() {
+    const list = document.getElementById("unscheduledList");
+    if (!list || document.getElementById("taskGroupControls")) return;
+    const controls = document.createElement("div");
+    controls.id = "taskGroupControls";
+    controls.className = "task-group-controls";
+    controls.innerHTML = `
+      <button type="button" class="ghost" data-open-groups>Open all</button>
+      <button type="button" class="ghost" data-close-groups>Collapse all</button>
+    `;
+    list.parentElement?.insertBefore(controls, list);
+    controls.querySelector("[data-open-groups]").addEventListener("click", () => {
+      writeGroupState({});
+      document.querySelectorAll(".task-group-cards").forEach(body => body.hidden = false);
+      document.querySelectorAll(".task-group-header").forEach(header => header.setAttribute("aria-expanded", "true"));
+    });
+    controls.querySelector("[data-close-groups]").addEventListener("click", () => {
+      const state = Object.fromEntries(groups.map(group => [group.id, true]));
+      writeGroupState(state);
+      document.querySelectorAll(".task-group-cards").forEach(body => body.hidden = true);
+      document.querySelectorAll(".task-group-header").forEach(header => header.setAttribute("aria-expanded", "false"));
+    });
+  }
+
+  function enhanceTaskPile() {
+    injectGroupControls();
+    groupUnscheduledPile();
+  }
+
   injectButton();
-  new MutationObserver(injectButton).observe(document.body, { childList: true, subtree: true });
+  enhanceTaskPile();
+  new MutationObserver(() => {
+    injectButton();
+    enhanceTaskPile();
+  }).observe(document.body, { childList: true, subtree: true });
 })();
