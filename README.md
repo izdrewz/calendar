@@ -6,6 +6,7 @@ Example: create **Exam study — 5× per week — 90 min**. The app creates five
 
 ## Apps in this repo
 
+- `home.html` — shared launch dashboard for the planner, Tmazing Uni Hub, PDF Split Cleaner, clothes stock, and gift planner
 - `index.html` — weekly drag-and-drop calendar planner
 - `stock.html` — clothes stock list for selling, keeping, upscaling, photos, locations, and repairs
 - `gifts.html` — gift planner for birthdays, Christmas, budgets, ideas, bought/wrapped/given status
@@ -27,6 +28,7 @@ Example: create **Exam study — 5× per week — 90 min**. The app creates five
 - Asks for today’s goals when you open the planner if no goal is saved for that day
 - End-session flow shows unfinished tasks and lets you return them to the drag/drop pile, schedule them tomorrow, keep them where they are, or skip them
 - Monday weekly review summarises done/scheduled/skipped counts and tracked time by task/habit/project
+- Exports scheduled tasks as `.ics` calendar files for Google Calendar, Apple Calendar, Outlook, or other calendar apps
 - Supports browser reminders while the app is open
 - Exports/imports planner data as JSON
 - Downloads session logs as JSON
@@ -35,7 +37,7 @@ Example: create **Exam study — 5× per week — 90 min**. The app creates five
 
 ## How to use the calendar
 
-1. Open `index.html` in a browser.
+1. Open `home.html` if you want the shared dashboard, or `index.html` if you want the planner directly.
 2. Click **Load life-admin starter pack** if you want the suggested setup.
 3. Add recurring task rules for habits or routines.
    - Example: `Exam study`, `5× per week`, `90 minutes`, `Highest priority`
@@ -46,12 +48,14 @@ Example: create **Exam study — 5× per week — 90 min**. The app creates five
 7. Mark tasks done, skipped, unplanned, or remove one-off cards.
 8. Use **End session for today** to decide what happens to unfinished tasks.
 9. Use **Weekly review** on Monday or whenever you want a progress summary.
-10. Use Export and Download logs to back up your planner.
+10. Use **Export calendar .ics** if you want the scheduled tasks in your normal calendar.
+11. Use Export and Download logs to back up your planner.
 
 ## When to use each app
 
 | Need | Use |
 |---|---|
+| Launch everything from one page | Shared dashboard |
 | Schedule study, cleaning, room resets, admin, hobbies, or one-off tasks | Calendar planner |
 | Track clothes to keep, sell, upscale, photograph, list, or repair | Clothes stock list |
 | Track birthdays, Christmas, budgets, gift ideas, and bought/wrapped/given status | Gift planner |
@@ -66,7 +70,13 @@ This is a static app. To publish it with GitHub Pages:
 4. Select the `main` branch and `/root`.
 5. Save.
 
-After GitHub Pages finishes deploying, the app will be available at the Pages URL shown there.
+After GitHub Pages finishes deploying, the shared dashboard should be available at:
+
+`https://izdrewz.github.io/Tma-workbench-local/home.html`
+
+The planner itself should be available at:
+
+`https://izdrewz.github.io/Tma-workbench-local/`
 
 ## Privacy
 
@@ -76,6 +86,6 @@ Your planner data stays in your browser. There is no server, login, analytics, o
 
 - Reminders only work while the app is open because this version has no server.
 - Data is saved per browser/device unless you export/import JSON and session logs.
+- Calendar export creates `.ics` files; it does not yet do live two-way Google Calendar sync.
 - A browser app cannot silently choose folders, save outside Downloads, or commit to GitHub without you taking action.
-- Google Calendar sync is not included yet.
 - New separate GitHub repositories were not created; the available GitHub tools exposed file creation/editing in the existing repository, so the extra apps were added as pages in this repo.
