@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Focus Week Planner</title>
+  <meta name="description" content="ADHD-friendly weekly task planner with drag-and-drop time blocking.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Focus Week Planner</p>
+      <h1>Plan by dragging tasks into your week.</h1>
+      <p class="subtitle">Make a weekly task like “Study 3×”, then place each copy wherever your week actually allows.</p>
+    </div>
+    <div class="header-actions">
+      <button id="prevWeek" class="ghost" type="button" aria-label="Previous week">←</button>
+      <button id="todayWeek" type="button">This week</button>
+      <button id="nextWeek" class="ghost" type="button" aria-label="Next week">→</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Step 1</p>
+            <h2>Add a weekly task</h2>
+          </div>
+        </div>
+        <form id="taskForm" class="task-form">
+          <label>
+            Task name
+            <input id="taskName" name="taskName" type="text" placeholder="Study, gym, laundry..." autocomplete="off" required>
+          </label>
+          <div class="form-row">
+            <label>
+              Times per week
+              <input id="taskFrequency" name="taskFrequency" type="number" min="1" max="14" value="3" required>
+            </label>
+            <label>
+              Minutes
+              <input id="taskDuration" name="taskDuration" type="number" min="5" max="360" step="5" value="45" required>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              Energy
+              <select id="taskEnergy" name="taskEnergy">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+            <label>
+              Category
+              <input id="taskCategory" name="taskCategory" type="text" placeholder="school, health...">
+            </label>
+          </div>
+          <label>
+            Tiny first step
+            <input id="taskStep" name="taskStep" type="text" placeholder="Open notes, put shoes on...">
+          </label>
+          <button type="submit">Create weekly task</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Step 2</p>
+            <h2>Unscheduled</h2>
+          </div>
+          <span id="unscheduledCount" class="pill">0</span>
+        </div>
+        <p class="hint">Drag a card onto a time slot. On mobile, tap a card, then tap a slot.</p>
+        <div id="unscheduledList" class="card-list empty-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Task library</p>
+            <h2>Weekly rules</h2>
+          </div>
+        </div>
+        <div id="taskLibrary" class="rules-list"></div>
+      </section>
+    </aside>
+
+    <section class="main-board">
+      <section class="panel focus-panel">
+        <div>
+          <p class="eyebrow">Now</p>
+          <h2 id="focusTitle">Today focus</h2>
+          <p id="focusText" class="hint">Your next scheduled task will show here.</p>
+        </div>
+        <div class="focus-actions">
+          <button id="startFocus" type="button">Start 25 min focus</button>
+          <button id="resetFocus" class="ghost" type="button">Reset</button>
+          <span id="focusTimer" class="timer">25:00</span>
+        </div>
+      </section>
+
+      <section class="toolbar panel">
+        <div>
+          <p id="weekLabel" class="week-label">Week</p>
+          <div id="progressText" class="progress-text">0 scheduled</div>
+        </div>
+        <div class="toggles">
+          <label class="switch">
+            <input id="calmMode" type="checkbox">
+            <span>Calm mode</span>
+          </label>
+          <label class="switch">
+            <input id="hideDone" type="checkbox">
+            <span>Hide done</span>
+          </label>
+          <button id="enableReminders" class="ghost" type="button">Enable reminders</button>
+          <button id="exportData" class="ghost" type="button">Export</button>
+          <label class="file-button">
+            Import
+            <input id="importData" type="file" accept="application/json">
+          </label>
+        </div>
+      </section>
+
+      <section class="calendar-shell panel" aria-label="Weekly calendar">
+        <div id="calendar" class="calendar"></div>
+      </section>
+    </section>
+  </main>
+
+  <template id="instanceCardTemplate">
+    <article class="task-card" draggable="true">
+      <div class="task-main">
+        <div>
+          <h3></h3>
+          <p class="task-meta"></p>
+        </div>
+        <span class="status-dot"></span>
+      </div>
+      <p class="tiny-step"></p>
+      <div class="card-actions">
+        <button class="done-button" type="button">Done</button>
+        <button class="skip-button ghost" type="button">Skip</button>
+        <button class="unschedule-button ghost" type="button">Unplan</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
