@@ -21,21 +21,13 @@
   function writeState(state) { localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(state)); }
 
   function cardText(card) {
-    return [
-      card.querySelector("h3")?.textContent,
-      card.querySelector(".type-badge")?.textContent,
-      card.querySelector(".task-meta")?.textContent,
-      card.querySelector(".tiny-step")?.textContent,
-      card.classList.contains("one-off") ? "one-off" : ""
-    ].join(" ").toLowerCase();
+    return [card.querySelector("h3")?.textContent, card.querySelector(".type-badge")?.textContent, card.querySelector(".task-meta")?.textContent, card.querySelector(".tiny-step")?.textContent, card.classList.contains("one-off") ? "one-off" : ""].join(" ").toLowerCase();
   }
-
   function groupFor(card) {
     const text = cardText(card);
     if (text.includes("one-off")) return groups.find(g => g.id === "one-off");
     return groups.find(group => group.id !== "one-off" && group.id !== "other" && group.terms.some(term => text.includes(term))) || groups.find(group => group.id === "other");
   }
-
   function previewText(cards) {
     if (!cards.length) return "No tasks in this box yet. Click, then Add new.";
     return cards.slice(0, 6).map(card => card.querySelector("h3")?.textContent?.trim()).filter(Boolean).join("\n") + (cards.length > 6 ? `\n+ ${cards.length - 6} more` : "");
@@ -72,8 +64,9 @@
       controls.className = "category-box-row";
       list.parentElement?.insertBefore(controls, list);
     }
+    const starter = document.getElementById("loadStarter");
     controls.innerHTML = "";
-
+    if (starter) controls.appendChild(starter);
     groups.forEach(group => {
       const cards = buckets.get(group.id) || [];
       const button = document.createElement("button");
@@ -81,12 +74,7 @@
       button.className = `category-box ${state.active === group.id ? "active" : ""}`;
       button.dataset.group = group.id;
       button.title = previewText(cards);
-      button.innerHTML = `
-        <span class="category-icon">${group.emoji}</span>
-        <span class="category-title">${group.title}</span>
-        <span class="category-count">${cards.length}</span>
-        <span class="category-preview">${previewText(cards).replaceAll("\n", "<br>")}</span>
-      `;
+      button.innerHTML = `<span class="category-icon">${group.emoji}</span><span class="category-title">${group.title}</span><span class="category-count">${cards.length}</span><span class="category-preview">${previewText(cards).replaceAll("\n", "<br>")}</span>`;
       button.addEventListener("click", () => {
         const next = readState();
         next.active = next.active === group.id ? null : group.id;
@@ -105,24 +93,13 @@
       section.classList.toggle("is-open", isOpen);
     });
   }
-
   function buildSection(group, cards) {
     const section = document.createElement("section");
     section.className = "pile-section compact-open-pile";
     section.dataset.group = group.id;
     section.hidden = true;
-    section.innerHTML = `
-      <div class="pile-section-header">
-        <span>${group.emoji} ${group.title}</span>
-        <span>${cards.length} task${cards.length === 1 ? "" : "s"}</span>
-        <button type="button" class="ghost add-new-category">Add new</button>
-      </div>
-      <div class="pile-section-grid"></div>
-    `;
-    section.querySelector(".add-new-category").addEventListener("click", event => {
-      event.stopPropagation();
-      openAddForGroup(group);
-    });
+    section.innerHTML = `<div class="pile-section-header"><span>${group.emoji} ${group.title}</span><span>${cards.length} task${cards.length === 1 ? "" : "s"}</span><button type="button" class="ghost add-new-category">Add new</button></div><div class="pile-section-grid"></div>`;
+    section.querySelector(".add-new-category").addEventListener("click", event => { event.stopPropagation(); openAddForGroup(group); });
     const grid = section.querySelector(".pile-section-grid");
     if (cards.length) cards.forEach(card => grid.appendChild(card));
     else {
@@ -133,32 +110,26 @@
     }
     return section;
   }
-
   function groupPiles() {
     if (isGrouping) return;
     const list = document.getElementById("unscheduledList");
     if (!list) return;
     const cards = [...list.querySelectorAll(":scope > .task-card, :scope .pile-section-grid > .task-card")];
     if (!cards.length && list.classList.contains("pile-list")) return;
-
     isGrouping = true;
     const buckets = new Map(groups.map(group => [group.id, []]));
     cards.forEach(card => buckets.get(groupFor(card).id).push(card));
     makeControls(list, buckets);
-
     list.innerHTML = "";
     list.className = "card-list pile-list compact-pile-list";
     groups.forEach(group => list.appendChild(buildSection(group, buckets.get(group.id) || [])));
     showActivePile(readState().active);
     isGrouping = false;
   }
-
   function scheduleGrouping() { window.setTimeout(groupPiles, 60); }
   document.addEventListener("DOMContentLoaded", scheduleGrouping);
   window.addEventListener("load", scheduleGrouping);
   document.addEventListener("submit", scheduleGrouping, true);
-  document.addEventListener("click", event => {
-    if (event.target.closest("button") || event.target.closest(".task-card") || event.target.closest(".slot")) scheduleGrouping();
-  }, true);
+  document.addEventListener("click", event => { if (event.target.closest("button") || event.target.closest(".task-card") || event.target.closest(".slot")) scheduleGrouping(); }, true);
   document.addEventListener("drop", scheduleGrouping, true);
 })();
