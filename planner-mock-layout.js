@@ -1,14 +1,4 @@
 (() => {
-  function readPlanner() {
-    try { return JSON.parse(localStorage.getItem('focus-week-planner-v2')) || null; }
-    catch { return null; }
-  }
-
-  function currentWeekKeyFromLabel() {
-    const label = document.getElementById('weekLabel')?.textContent || '';
-    return label;
-  }
-
   function formatToday() {
     const target = document.getElementById('todayDateLabel');
     if (!target) return;
@@ -21,11 +11,10 @@
   function replaceStressfulProgress() {
     const progress = document.getElementById('progressText');
     if (!progress) return;
-    const planner = readPlanner();
-    const instances = Object.values(planner?.weeks || {}).flatMap(week => week.instances || []);
-    const scheduled = instances.filter(item => item.scheduledAt && !item.deleted && item.status !== 'skipped');
-    const done = scheduled.filter(item => item.status === 'done');
-    progress.textContent = `${scheduled.length} scheduled${done.length ? ` · ${done.length} done` : ''}`;
+    const scheduledCards = [...document.querySelectorAll('#calendar .task-card')];
+    const scheduled = scheduledCards.length;
+    const done = scheduledCards.filter(card => card.classList.contains('done')).length;
+    progress.textContent = `${scheduled} scheduled${done ? ` · ${done} done` : ''}`;
   }
 
   function improveInjectedIcsButton() {
