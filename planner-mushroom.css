@@ -1,0 +1,12 @@
+:root{--mushroom-page:#d9cabb;--mushroom-page-deep:#cbbbaa;--mushroom-cream:#f6efe5;--gingham-green:181,207,72;--gingham-sage:143,168,75}
+body.mock-calendar-page{background:linear-gradient(135deg,var(--mushroom-page),var(--mushroom-page-deep))!important;background-color:var(--mushroom-page)!important}
+.mock-calendar-page::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 18% 12%,rgba(255,250,242,.32),transparent 28%),radial-gradient(circle at 80% 82%,rgba(96,70,54,.09),transparent 34%);z-index:-1}
+.mock-title-card,.mock-header-actions,.mock-category-panel,.mock-timer-panel,.mock-calendar-box{box-shadow:0 0 0 14px rgba(246,239,229,.42)!important}
+.mock-calendar-toolbar,.mock-add-panel,.mock-category-panel .compact-open-pile{background:rgba(246,239,229,.82)!important}
+.mock-calendar-box{background:#f7d9e4!important;border-color:#d98eaa!important}
+.mock-calendar-box .calendar{background:#f7d9e4!important}
+.mock-calendar-box .day-header{background-color:rgba(248,225,234,.92)!important;background-image:linear-gradient(90deg,rgba(var(--gingham-green),.42) 0 22%,transparent 22% 50%,rgba(var(--gingham-sage),.34) 50% 72%,transparent 72% 100%),linear-gradient(0deg,rgba(var(--gingham-green),.34) 0 22%,transparent 22% 50%,rgba(var(--gingham-sage),.28) 50% 72%,transparent 72% 100%)!important;background-size:38px 38px!important}
+.mock-calendar-box .slot{background-color:rgba(255,244,249,.72)!important;background-image:linear-gradient(90deg,rgba(var(--gingham-green),.20) 0 20%,transparent 20% 50%,rgba(var(--gingham-sage),.18) 50% 70%,transparent 70% 100%),linear-gradient(0deg,rgba(var(--gingham-green),.16) 0 20%,transparent 20% 50%,rgba(var(--gingham-sage),.14) 50% 70%,transparent 70% 100%)!important;background-size:46px 46px!important}
+.mock-calendar-box .slot.today{background-color:rgba(244,255,232,.62)!important}
+.mock-calendar-box .time-label{background:rgba(246,239,229,.84)!important}
+.mock-calendar-box .corner{background:repeating-linear-gradient(90deg,rgba(var(--gingham-green),.45) 0 10px,rgba(158,199,230,.45) 10px 20px)!important}
