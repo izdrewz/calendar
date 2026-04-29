@@ -1,5 +1,5 @@
 (() => {
-  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v3";
+  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v4";
   let isGrouping = false;
 
   const groups = [
@@ -15,8 +15,8 @@
   ];
 
   function readState() {
-    try { return JSON.parse(localStorage.getItem(GROUP_STATE_KEY)) || { active: "uni" }; }
-    catch { return { active: "uni" }; }
+    try { return JSON.parse(localStorage.getItem(GROUP_STATE_KEY)) || { active: null }; }
+    catch { return { active: null }; }
   }
   function writeState(state) { localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(state)); }
 
@@ -89,30 +89,28 @@
       `;
       button.addEventListener("click", () => {
         const next = readState();
-        next.active = group.id;
+        next.active = next.active === group.id ? null : group.id;
         writeState(next);
-        showActivePile(group.id);
+        showActivePile(next.active);
       });
       controls.appendChild(button);
     });
-
-    if (!buckets.get(state.active)) {
-      state.active = "uni";
-      writeState(state);
-    }
   }
 
   function showActivePile(groupId) {
-    const state = readState();
-    const active = groupId || state.active;
-    document.querySelectorAll(".category-box").forEach(tab => tab.classList.toggle("active", tab.dataset.group === active));
-    document.querySelectorAll(".pile-section").forEach(section => section.hidden = section.dataset.group !== active);
+    document.querySelectorAll(".category-box").forEach(tab => tab.classList.toggle("active", !!groupId && tab.dataset.group === groupId));
+    document.querySelectorAll(".pile-section").forEach(section => {
+      const isOpen = !!groupId && section.dataset.group === groupId;
+      section.hidden = !isOpen;
+      section.classList.toggle("is-open", isOpen);
+    });
   }
 
   function buildSection(group, cards) {
     const section = document.createElement("section");
     section.className = "pile-section compact-open-pile";
     section.dataset.group = group.id;
+    section.hidden = true;
     section.innerHTML = `
       <div class="pile-section-header">
         <span>${group.emoji} ${group.title}</span>
