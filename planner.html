@@ -6,17 +6,20 @@
   <title>Calendar</title>
   <meta name="description" content="ADHD-friendly weekly calendar with compact category task piles.">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css?v=16">
-  <link rel="stylesheet" href="life-admin.css?v=16">
-  <link rel="stylesheet" href="planner-compact.css?v=16">
-  <link rel="stylesheet" href="planner-mock-layout.css?v=16">
-  <link rel="stylesheet" href="planner-timers.css?v=16">
+  <link rel="stylesheet" href="styles.css?v=17">
+  <link rel="stylesheet" href="life-admin.css?v=17">
+  <link rel="stylesheet" href="planner-compact.css?v=17">
+  <link rel="stylesheet" href="planner-mock-layout.css?v=17">
+  <link rel="stylesheet" href="planner-timers.css?v=17">
 </head>
 <body class="planner-focused-page compact-calendar-page mock-calendar-page">
   <header class="mock-calendar-header">
     <section class="mock-title-card" aria-label="Calendar title">
       <h1>Calendar</h1>
-      <p id="todayDateLabel">today</p>
+      <p id="todayDateLabel" class="title-date-stack">
+        <span id="currentDateText">today</span>
+        <span id="headerWeekRange">week</span>
+      </p>
     </section>
 
     <nav class="mock-header-actions" aria-label="Calendar navigation">
@@ -46,7 +49,7 @@
     <section class="mock-calendar-main">
       <section class="panel pile-panel compact-pile-panel mock-category-panel">
         <button id="loadStarter" class="category-box starter-setup-box" type="button" title="Adds starter tasks into your categories, such as study, cleaning, admin, clothes, projects, and rest.">
-          <span class="category-icon">✦</span>
+          <span class="category-dot starter-dot"></span>
           <span class="category-title">Starter setup</span>
           <span class="category-count">+</span>
           <span class="category-preview">Adds starter tasks into your categories so you do not have to build the system from nothing.</span>
@@ -95,9 +98,12 @@
       </details>
 
       <section class="toolbar panel compact-toolbar calendar-top-toolbar mock-calendar-toolbar">
-        <div>
+        <div class="progress-wrap">
           <p id="weekLabel" class="week-label">Week</p>
           <div id="progressText" class="progress-text">0 scheduled</div>
+          <div class="calendar-progress" aria-label="Done progress">
+            <span id="calendarProgressFill"></span>
+          </div>
         </div>
         <div class="toggles">
           <label class="switch calendar-tip" data-tip="Calm mode softens the page and reduces visual intensity while keeping your tasks and calendar usable."><input id="calmMode" type="checkbox"><span>Calm mode</span></label>
@@ -139,11 +145,11 @@
     </article>
   </template>
 
-  <script src="app.js?v=16"></script>
-  <script src="planner-piles.js?v=16"></script>
-  <script src="planner-compact.js?v=16"></script>
-  <script src="planner-mock-layout.js?v=16"></script>
-  <script src="planner-timers.js?v=16"></script>
-  <script src="ics-export-safe.js?v=16"></script>
+  <script src="app.js?v=17"></script>
+  <script src="planner-piles.js?v=17"></script>
+  <script src="planner-compact.js?v=17"></script>
+  <script src="planner-mock-layout.js?v=17"></script>
+  <script src="planner-timers.js?v=17"></script>
+  <script src="ics-export-safe.js?v=17"></script>
 </body>
 </html>
