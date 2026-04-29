@@ -1,17 +1,20 @@
 (() => {
   const CATEGORY_COLOURS = [
-    { key: 'Study|Uni|exam|note', name: 'uni', colour: '#7d99c8' },
-    { key: 'Daily Reset|Self care|journal|rest|gaming|keyboard', name: 'self-care', colour: '#b5cf48' },
-    { key: 'Admin|Personal|shopping|gift|messages|reply', name: 'personal', colour: '#d792a8' },
-    { key: 'Cleaning|cleaning|vacuum|surface|mirror|rubbish|recycling|crockery', name: 'cleaning', colour: '#91c1e6' },
-    { key: 'Room Setup|Projects|shelves|storage|bug|noise|labels', name: 'projects', colour: '#8f2a51' },
-    { key: 'Creative|Crafts|crochet|dress|upscale|cardboard|canderel', name: 'crafts', colour: '#c17aa0' },
-    { key: 'Clothes|clothes|sell|stock|vinted|photos', name: 'clothes', colour: '#6f173c' },
-    { key: 'one-off|One-off', name: 'one-off', colour: '#e0a437' },
-    { key: 'Other', name: 'other', colour: '#9b8094' }
+    { key: 'Study|Uni|exam|note', name: 'uni', colour: '#3f78b5' },
+    { key: 'Daily Reset|Self care|journal|rest|gaming|keyboard', name: 'self-care', colour: '#7fa84b' },
+    { key: 'Admin|Personal|shopping|gift|messages|reply', name: 'personal', colour: '#d85f7b' },
+    { key: 'Cleaning|cleaning|vacuum|surface|mirror|rubbish|recycling|crockery', name: 'cleaning', colour: '#45a9bd' },
+    { key: 'Room Setup|Projects|shelves|storage|bug|noise|labels', name: 'projects', colour: '#c02f36' },
+    { key: 'Creative|Crafts|crochet|dress|upscale|cardboard|canderel', name: 'crafts', colour: '#a85aa0' },
+    { key: 'Clothes|clothes|sell|stock|vinted|photos', name: 'clothes', colour: '#77824f' },
+    { key: 'one-off|One-off', name: 'one-off', colour: '#b9742f' },
+    { key: 'Other', name: 'other', colour: '#4f2441' }
   ];
 
   function categoryForCard(card) {
+    if (card.dataset.categoryGroup) {
+      return CATEGORY_COLOURS.find(item => item.name === card.dataset.categoryGroup) || CATEGORY_COLOURS[CATEGORY_COLOURS.length - 1];
+    }
     const text = [
       card.querySelector('h3')?.textContent,
       card.querySelector('.type-badge')?.textContent,
@@ -44,6 +47,12 @@
       card.style.setProperty('--task-colour', category.colour);
       const dot = card.querySelector('.status-dot');
       if (dot) dot.style.background = category.colour;
+      if (card.closest('#calendar') && !card.querySelector('.calendar-card-hint')) {
+        const hint = document.createElement('span');
+        hint.className = 'calendar-card-hint';
+        hint.textContent = 'calendar task';
+        card.querySelector('.card-title-row')?.appendChild(hint);
+      }
     });
   }
 
