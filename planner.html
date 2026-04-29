@@ -6,10 +6,10 @@
   <title>Calendar</title>
   <meta name="description" content="ADHD-friendly weekly calendar with compact category task piles.">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css?v=13">
-  <link rel="stylesheet" href="life-admin.css?v=13">
-  <link rel="stylesheet" href="planner-compact.css?v=13">
-  <link rel="stylesheet" href="planner-mock-layout.css?v=13">
+  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="life-admin.css?v=15">
+  <link rel="stylesheet" href="planner-compact.css?v=15">
+  <link rel="stylesheet" href="planner-mock-layout.css?v=15">
 </head>
 <body class="planner-focused-page compact-calendar-page mock-calendar-page">
   <header class="mock-calendar-header">
@@ -32,9 +32,8 @@
   <main class="mock-calendar-shell">
     <aside class="panel focus-panel slim-focus mock-timer-panel">
       <div>
-        <p class="eyebrow">Timer</p>
         <h2 id="focusTitle">Start new timer</h2>
-        <p id="focusText" class="hint">Start a focus round and reset only when you want to clear it.</p>
+        <p id="focusText" class="hint">Round timer</p>
       </div>
       <div class="focus-actions mock-timer-actions">
         <button id="startFocus" type="button">Start timer</button>
@@ -45,19 +44,13 @@
 
     <section class="mock-calendar-main">
       <section class="panel starter-panel compact-starter-card mock-starter-card">
-        <div>
-          <p class="eyebrow">Starter setup</p>
-          <h2>Life admin system</h2>
-        </div>
-        <button id="loadStarter" type="button">Load starter pack</button>
+        <h2>Starter setup</h2>
+        <button id="loadStarter" type="button" aria-label="Load starter pack">Load starter pack</button>
       </section>
 
       <section class="panel pile-panel compact-pile-panel mock-category-panel">
         <div class="compact-pile-title mock-category-title">
-          <div>
-            <p class="eyebrow">Categories</p>
-            <h2>Closed by default · hover to preview · click to open</h2>
-          </div>
+          <h2>Categories</h2>
           <span id="unscheduledCount" class="pill">0</span>
         </div>
         <div id="unscheduledList" class="card-list empty-list"></div>
@@ -148,10 +141,10 @@
     </article>
   </template>
 
-  <script src="app.js?v=13"></script>
-  <script src="planner-piles.js?v=13"></script>
-  <script src="planner-compact.js?v=13"></script>
-  <script src="planner-mock-layout.js?v=13"></script>
-  <script src="ics-export-safe.js?v=13"></script>
+  <script src="app.js?v=15"></script>
+  <script src="planner-piles.js?v=15"></script>
+  <script src="planner-compact.js?v=15"></script>
+  <script src="planner-mock-layout.js?v=15"></script>
+  <script src="ics-export-safe.js?v=15"></script>
 </body>
 </html>
