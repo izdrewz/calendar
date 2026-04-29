@@ -1,27 +1,24 @@
 (() => {
-  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v2";
+  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v3";
   let isGrouping = false;
 
   const groups = [
-    { id: "uni", title: "Uni / study", emoji: "📚", terms: ["study", "exam", "note", "clean notes"] },
-    { id: "self-care", title: "Self care / reset", emoji: "🌿", terms: ["daily reset", "journal", "rest", "gaming", "keyboard"] },
-    { id: "personal", title: "Personal / admin", emoji: "🧾", terms: ["admin", "shopping", "life planning", "gift", "messages", "reply"] },
-    { id: "cleaning", title: "Cleaning", emoji: "🧽", terms: ["cleaning", "vacuum", "surface", "mirror", "windows", "rubbish", "recycling", "crockery"] },
-    { id: "projects", title: "Projects / room setup", emoji: "🧰", terms: ["room setup", "project", "shelves", "storage", "bug", "noise", "hanger", "labels"] },
-    { id: "crafts", title: "Crafts / creative", emoji: "🎨", terms: ["creative", "craft", "crochet", "dress", "upscale", "cardboard", "canderel"] },
-    { id: "clothes", title: "Clothes", emoji: "👕", terms: ["clothes", "sell", "stock", "vinted", "photos", "listed"] },
-    { id: "one-off", title: "One-off / temporary", emoji: "📌", terms: ["one-off"] },
-    { id: "other", title: "Other", emoji: "✨", terms: [] }
+    { id: "uni", title: "Uni", emoji: "📚", type: "Study", terms: ["study", "exam", "note", "clean notes"] },
+    { id: "self-care", title: "Self care", emoji: "🌿", type: "Daily Reset", terms: ["daily reset", "journal", "rest", "gaming", "keyboard"] },
+    { id: "personal", title: "Personal", emoji: "🧾", type: "Admin", terms: ["admin", "shopping", "life planning", "gift", "messages", "reply"] },
+    { id: "cleaning", title: "Cleaning", emoji: "🧽", type: "Cleaning", terms: ["cleaning", "vacuum", "surface", "mirror", "windows", "rubbish", "recycling", "crockery"] },
+    { id: "projects", title: "Projects", emoji: "🧰", type: "Room Setup", terms: ["room setup", "project", "shelves", "storage", "bug", "noise", "hanger", "labels"] },
+    { id: "crafts", title: "Crafts", emoji: "🎨", type: "Creative", terms: ["creative", "craft", "crochet", "dress", "upscale", "cardboard", "canderel"] },
+    { id: "clothes", title: "Clothes", emoji: "👕", type: "Clothes", terms: ["clothes", "sell", "stock", "vinted", "photos", "listed"] },
+    { id: "one-off", title: "One-off", emoji: "📌", type: "Admin", terms: ["one-off"] },
+    { id: "other", title: "Other", emoji: "✨", type: "Admin", terms: [] }
   ];
 
   function readState() {
-    try { return JSON.parse(localStorage.getItem(GROUP_STATE_KEY)) || { active: "uni", collapsed: {} }; }
-    catch { return { active: "uni", collapsed: {} }; }
+    try { return JSON.parse(localStorage.getItem(GROUP_STATE_KEY)) || { active: "uni" }; }
+    catch { return { active: "uni" }; }
   }
-
-  function writeState(state) {
-    localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(state));
-  }
+  function writeState(state) { localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(state)); }
 
   function cardText(card) {
     return [
@@ -39,25 +36,57 @@
     return groups.find(group => group.id !== "one-off" && group.id !== "other" && group.terms.some(term => text.includes(term))) || groups.find(group => group.id === "other");
   }
 
+  function previewText(cards) {
+    if (!cards.length) return "No tasks in this box yet. Click, then Add new.";
+    return cards.slice(0, 6).map(card => card.querySelector("h3")?.textContent?.trim()).filter(Boolean).join("\n") + (cards.length > 6 ? `\n+ ${cards.length - 6} more` : "");
+  }
+
+  function openAddForGroup(group) {
+    const weekly = document.getElementById("weeklyAddPanel");
+    const oneOff = document.getElementById("oneOffAddPanel");
+    const typeSelect = document.getElementById("taskType");
+    const categoryInput = document.getElementById("taskCategory");
+    const oneOffType = document.getElementById("oneOffType");
+    if (group.id === "one-off") {
+      if (weekly) weekly.open = false;
+      if (oneOff) oneOff.open = true;
+      if (oneOffType) oneOffType.value = group.type;
+      oneOff?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      document.getElementById("oneOffName")?.focus();
+      return;
+    }
+    if (oneOff) oneOff.open = false;
+    if (weekly) weekly.open = true;
+    if (typeSelect) typeSelect.value = group.type;
+    if (categoryInput) categoryInput.value = group.title.toLowerCase();
+    weekly?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    document.getElementById("taskName")?.focus();
+  }
+
   function makeControls(list, buckets) {
     const state = readState();
     let controls = document.getElementById("pileGroupTabs");
     if (!controls) {
       controls = document.createElement("div");
       controls.id = "pileGroupTabs";
-      controls.className = "pile-tabs";
+      controls.className = "category-box-row";
       list.parentElement?.insertBefore(controls, list);
     }
-
     controls.innerHTML = "";
+
     groups.forEach(group => {
-      const count = buckets.get(group.id)?.length || 0;
-      if (!count) return;
+      const cards = buckets.get(group.id) || [];
       const button = document.createElement("button");
       button.type = "button";
-      button.className = `pile-tab ${state.active === group.id ? "active" : ""}`;
+      button.className = `category-box ${state.active === group.id ? "active" : ""}`;
       button.dataset.group = group.id;
-      button.innerHTML = `<span>${group.emoji} ${group.title}</span><strong>${count}</strong>`;
+      button.title = previewText(cards);
+      button.innerHTML = `
+        <span class="category-icon">${group.emoji}</span>
+        <span class="category-title">${group.title}</span>
+        <span class="category-count">${cards.length}</span>
+        <span class="category-preview">${previewText(cards).replaceAll("\n", "<br>")}</span>
+      `;
       button.addEventListener("click", () => {
         const next = readState();
         next.active = group.id;
@@ -67,9 +96,8 @@
       controls.appendChild(button);
     });
 
-    if (!buckets.get(state.active)?.length) {
-      const first = groups.find(group => buckets.get(group.id)?.length)?.id || "other";
-      state.active = first;
+    if (!buckets.get(state.active)) {
+      state.active = "uni";
       writeState(state);
     }
   }
@@ -77,43 +105,57 @@
   function showActivePile(groupId) {
     const state = readState();
     const active = groupId || state.active;
-    document.querySelectorAll(".pile-tab").forEach(tab => tab.classList.toggle("active", tab.dataset.group === active));
+    document.querySelectorAll(".category-box").forEach(tab => tab.classList.toggle("active", tab.dataset.group === active));
     document.querySelectorAll(".pile-section").forEach(section => section.hidden = section.dataset.group !== active);
+  }
+
+  function buildSection(group, cards) {
+    const section = document.createElement("section");
+    section.className = "pile-section compact-open-pile";
+    section.dataset.group = group.id;
+    section.innerHTML = `
+      <div class="pile-section-header">
+        <span>${group.emoji} ${group.title}</span>
+        <span>${cards.length} task${cards.length === 1 ? "" : "s"}</span>
+        <button type="button" class="ghost add-new-category">Add new</button>
+      </div>
+      <div class="pile-section-grid"></div>
+    `;
+    section.querySelector(".add-new-category").addEventListener("click", event => {
+      event.stopPropagation();
+      openAddForGroup(group);
+    });
+    const grid = section.querySelector(".pile-section-grid");
+    if (cards.length) cards.forEach(card => grid.appendChild(card));
+    else {
+      const empty = document.createElement("p");
+      empty.className = "empty-category-note";
+      empty.textContent = "No tasks yet. Click Add new.";
+      grid.appendChild(empty);
+    }
+    return section;
   }
 
   function groupPiles() {
     if (isGrouping) return;
     const list = document.getElementById("unscheduledList");
     if (!list) return;
-    const directCards = [...list.children].filter(child => child.classList?.contains("task-card"));
-    if (!directCards.length) return;
+    const cards = [...list.querySelectorAll(":scope > .task-card, :scope .pile-section-grid > .task-card")];
+    if (!cards.length && list.classList.contains("pile-list")) return;
 
     isGrouping = true;
     const buckets = new Map(groups.map(group => [group.id, []]));
-    directCards.forEach(card => buckets.get(groupFor(card).id).push(card));
+    cards.forEach(card => buckets.get(groupFor(card).id).push(card));
     makeControls(list, buckets);
 
     list.innerHTML = "";
-    list.classList.add("pile-list");
-    groups.forEach(group => {
-      const cards = buckets.get(group.id) || [];
-      if (!cards.length) return;
-      const section = document.createElement("section");
-      section.className = "pile-section";
-      section.dataset.group = group.id;
-      section.innerHTML = `<div class="pile-section-header"><span>${group.emoji} ${group.title}</span><span>${cards.length} task${cards.length === 1 ? "" : "s"}</span></div><div class="pile-section-grid"></div>`;
-      const grid = section.querySelector(".pile-section-grid");
-      cards.forEach(card => grid.appendChild(card));
-      list.appendChild(section);
-    });
+    list.className = "card-list pile-list compact-pile-list";
+    groups.forEach(group => list.appendChild(buildSection(group, buckets.get(group.id) || [])));
     showActivePile(readState().active);
     isGrouping = false;
   }
 
-  function scheduleGrouping() {
-    window.setTimeout(groupPiles, 60);
-  }
-
+  function scheduleGrouping() { window.setTimeout(groupPiles, 60); }
   document.addEventListener("DOMContentLoaded", scheduleGrouping);
   window.addEventListener("load", scheduleGrouping);
   document.addEventListener("submit", scheduleGrouping, true);
