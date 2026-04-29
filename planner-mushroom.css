@@ -1,9 +1,16 @@
-:root{--mushroom-page:#f4eadc;--mushroom-page-deep:#eadfce;--mushroom-cream:#fff5e7;--calendar-pink:#ee9fbd;--calendar-pink-soft:#f7c6d8;--gingham-green:181,207,72;--gingham-sage:143,168,75;--date-blue:#9ec7e6;--date-green:#b5cf48;--deep-red:#6f173c;--gold-star:#d8a326;--corner-gold:#d8a326}
+:root{--mushroom-page:#f4eadc;--mushroom-page-deep:#eadfce;--mushroom-cream:#fff5e7;--calendar-pink:#ee9fbd;--calendar-pink-soft:#f7c6d8;--gingham-green:181,207,72;--gingham-sage:143,168,75;--date-blue:#9ec7e6;--date-green:#b5cf48;--deep-red:#6f173c;--gold-star:#d8a326;--corner-gold:#d8a326;--category-plum:#4b0d27;--category-burgundy:#5f1232;--category-mauve:#a87b91}
 html,body,body.mock-calendar-page,.planner-focused-page,.compact-calendar-page{background:linear-gradient(135deg,var(--mushroom-page),var(--mushroom-page-deep))!important;background-color:var(--mushroom-page)!important}
 .mock-calendar-page,.mock-calendar-header,.mock-calendar-shell,.mock-calendar-main{background:transparent!important}
 .mock-calendar-page::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 18% 12%,rgba(255,250,242,.48),transparent 28%),radial-gradient(circle at 80% 82%,rgba(96,70,54,.035),transparent 34%);z-index:-1}
 .mock-title-card,.mock-header-actions,.mock-category-panel,.mock-timer-panel,.mock-calendar-box{box-shadow:0 0 0 14px rgba(255,245,231,.72)!important}
 .mock-calendar-toolbar,.mock-add-panel,.mock-category-panel .compact-open-pile{background:rgba(255,245,231,.92)!important}
+.mock-category-panel{background:var(--category-plum)!important;border-color:rgba(75,13,39,.55)!important}
+.mock-category-panel .category-box,.mock-category-panel .starter-setup-box{background:var(--category-burgundy)!important;color:#fff8f0!important;border-left-color:var(--category-plum)!important}
+.mock-category-panel .category-box:nth-child(odd){background:var(--category-burgundy)!important;color:#fff8f0!important}
+.mock-category-panel .category-box:nth-child(even){background:var(--category-mauve)!important;color:#fff8f0!important}
+.mock-category-panel .starter-setup-box{background:var(--category-plum)!important;color:#fff8f0!important;border-left-color:#d9b8c5!important}
+.mock-category-panel .category-box.active{background:#35101f!important;color:#fff8f0!important;box-shadow:inset 0 0 0 3px #fff5e7!important}
+.mock-category-panel .category-count{background:#fff8ef!important;color:var(--category-plum)!important}
 .mock-calendar-box{background:var(--calendar-pink)!important;border-color:#d687a6!important}
 .mock-calendar-box .calendar{background:var(--calendar-pink)!important}
 .mock-calendar-box .day-header{background-image:none!important;background:var(--date-blue)!important;border-right:5px solid var(--deep-red)!important;border-bottom:5px solid var(--deep-red)!important;color:#2a101a!important;font-family:Georgia,'Times New Roman',serif!important;font-size:1rem!important;font-weight:900!important;text-transform:uppercase;letter-spacing:.08em}
