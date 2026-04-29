@@ -1,17 +1,17 @@
 (() => {
-  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v5";
+  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v6";
   let isGrouping = false;
 
   const groups = [
-    { id: "uni", title: "Uni", colour: "#7d99c8", type: "Study", terms: ["study", "exam", "note", "clean notes"] },
-    { id: "self-care", title: "Self care", colour: "#b5cf48", type: "Daily Reset", terms: ["daily reset", "journal", "rest", "gaming", "keyboard"] },
-    { id: "personal", title: "Personal", colour: "#d792a8", type: "Admin", terms: ["admin", "shopping", "life planning", "gift", "messages", "reply"] },
-    { id: "cleaning", title: "Cleaning", colour: "#91c1e6", type: "Cleaning", terms: ["cleaning", "vacuum", "surface", "mirror", "windows", "rubbish", "recycling", "crockery"] },
-    { id: "projects", title: "Projects", colour: "#8f2a51", type: "Room Setup", terms: ["room setup", "project", "shelves", "storage", "bug", "noise", "hanger", "labels"] },
-    { id: "crafts", title: "Crafts", colour: "#c17aa0", type: "Creative", terms: ["creative", "craft", "crochet", "dress", "upscale", "cardboard", "canderel"] },
-    { id: "clothes", title: "Clothes", colour: "#6f173c", type: "Clothes", terms: ["clothes", "sell", "stock", "vinted", "photos", "listed"] },
-    { id: "one-off", title: "One-off", colour: "#e0a437", type: "Admin", terms: ["one-off"] },
-    { id: "other", title: "Other", colour: "#9b8094", type: "Admin", terms: [] }
+    { id: "uni", title: "Uni", colour: "#3f78b5", type: "Study", terms: ["study", "exam", "note", "clean notes"] },
+    { id: "self-care", title: "Self care", colour: "#7fa84b", type: "Daily Reset", terms: ["daily reset", "journal", "rest", "gaming", "keyboard"] },
+    { id: "personal", title: "Personal", colour: "#d85f7b", type: "Admin", terms: ["admin", "shopping", "life planning", "gift", "messages", "reply"] },
+    { id: "cleaning", title: "Cleaning", colour: "#45a9bd", type: "Cleaning", terms: ["cleaning", "vacuum", "surface", "mirror", "windows", "rubbish", "recycling", "crockery"] },
+    { id: "projects", title: "Projects", colour: "#c02f36", type: "Room Setup", terms: ["room setup", "project", "shelves", "storage", "bug", "noise", "hanger", "labels"] },
+    { id: "crafts", title: "Crafts", colour: "#a85aa0", type: "Creative", terms: ["creative", "craft", "crochet", "dress", "upscale", "cardboard", "canderel"] },
+    { id: "clothes", title: "Clothes", colour: "#77824f", type: "Clothes", terms: ["clothes", "sell", "stock", "vinted", "photos", "listed"] },
+    { id: "one-off", title: "One-off", colour: "#b9742f", type: "Admin", terms: ["one-off"] },
+    { id: "other", title: "Other", colour: "#4f2441", type: "Admin", terms: [] }
   ];
 
   function readState() {
@@ -21,16 +21,25 @@
   function writeState(state) { localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(state)); }
 
   function cardText(card) {
-    return [card.querySelector("h3")?.textContent, card.querySelector(".type-badge")?.textContent, card.querySelector(".task-meta")?.textContent, card.querySelector(".tiny-step")?.textContent, card.classList.contains("one-off") ? "one-off" : ""].join(" ").toLowerCase();
+    return [
+      card.querySelector("h3")?.textContent,
+      card.querySelector(".type-badge")?.textContent,
+      card.querySelector(".task-meta")?.textContent,
+      card.querySelector(".tiny-step")?.textContent,
+      card.classList.contains("one-off") ? "one-off" : ""
+    ].join(" ").toLowerCase();
   }
+
   function groupFor(card) {
     const text = cardText(card);
     if (text.includes("one-off")) return groups.find(g => g.id === "one-off");
     return groups.find(group => group.id !== "one-off" && group.id !== "other" && group.terms.some(term => text.includes(term))) || groups.find(group => group.id === "other");
   }
-  function previewText(cards) {
-    if (!cards.length) return "No tasks in this box yet. Click, then Add new.";
-    return cards.slice(0, 6).map(card => card.querySelector("h3")?.textContent?.trim()).filter(Boolean).join("\n") + (cards.length > 6 ? `\n+ ${cards.length - 6} more` : "");
+
+  function previewText(cards, group) {
+    if (!cards.length) return `${group.title}: no tasks yet. Click this box, then Add new.`;
+    const examples = cards.slice(0, 4).map(card => card.querySelector("h3")?.textContent?.trim()).filter(Boolean).join("\n");
+    return `${group.title}: ${cards.length} task${cards.length === 1 ? "" : "s"}. Click to open the drag tray.\n${examples}`;
   }
 
   function openAddForGroup(group) {
@@ -55,6 +64,23 @@
     document.getElementById("taskName")?.focus();
   }
 
+  function addDragHint(card, group) {
+    card.dataset.categoryGroup = group.id;
+    card.style.setProperty("--task-colour", group.colour);
+    card.setAttribute("draggable", "true");
+    if (!card.querySelector(".drag-helper-label")) {
+      const helper = document.createElement("div");
+      helper.className = "drag-helper-label";
+      helper.innerHTML = `<span class="inline-dot" style="--dot:${group.colour}"></span><strong>Drag this into the calendar</strong>`;
+      card.insertBefore(helper, card.firstChild);
+    }
+    const meta = card.querySelector(".task-meta");
+    if (meta && !meta.dataset.expandedLabel) {
+      meta.dataset.expandedLabel = "true";
+      meta.innerHTML = meta.textContent.replace(/(\d+)\/(\d+)/g, "copy $1 of $2");
+    }
+  }
+
   function makeControls(list, buckets) {
     const state = readState();
     let controls = document.getElementById("pileGroupTabs");
@@ -74,8 +100,8 @@
       button.className = `category-box ${state.active === group.id ? "active" : ""}`;
       button.dataset.group = group.id;
       button.style.setProperty("--category-colour", group.colour);
-      button.title = previewText(cards);
-      button.innerHTML = `<span class="category-dot" style="--dot:${group.colour}"></span><span class="category-title">${group.title}</span><span class="category-count">${cards.length}</span><span class="category-preview">${previewText(cards).replaceAll("\n", "<br>")}</span>`;
+      button.title = previewText(cards, group);
+      button.innerHTML = `<span class="category-dot" style="--dot:${group.colour}"></span><span class="category-title">${group.title}</span><span class="category-count">${cards.length}</span><span class="category-preview">${previewText(cards, group).replaceAll("\n", "<br>")}</span>`;
       button.addEventListener("click", () => {
         const next = readState();
         next.active = next.active === group.id ? null : group.id;
@@ -94,16 +120,22 @@
       section.classList.toggle("is-open", isOpen);
     });
   }
+
   function buildSection(group, cards) {
     const section = document.createElement("section");
-    section.className = "pile-section compact-open-pile";
+    section.className = "pile-section compact-open-pile clear-drag-tray";
     section.dataset.group = group.id;
     section.hidden = true;
-    section.innerHTML = `<div class="pile-section-header"><span><span class="inline-dot" style="--dot:${group.colour}"></span>${group.title}</span><span>${cards.length} task${cards.length === 1 ? "" : "s"}</span><button type="button" class="ghost add-new-category">Add new</button></div><div class="pile-section-grid"></div>`;
+    section.style.setProperty("--task-colour", group.colour);
+    section.innerHTML = `<div class="pile-section-header"><span><span class="inline-dot" style="--dot:${group.colour}"></span>${group.title}</span><span>${cards.length} card${cards.length === 1 ? "" : "s"} to drag</span><button type="button" class="ghost add-new-category">Add new</button></div><p class="drag-tray-help">Drag any card below into a day/time box in the calendar.</p><div class="pile-section-grid"></div>`;
     section.querySelector(".add-new-category").addEventListener("click", event => { event.stopPropagation(); openAddForGroup(group); });
     const grid = section.querySelector(".pile-section-grid");
-    if (cards.length) cards.forEach(card => grid.appendChild(card));
-    else {
+    if (cards.length) {
+      cards.forEach(card => {
+        addDragHint(card, group);
+        grid.appendChild(card);
+      });
+    } else {
       const empty = document.createElement("p");
       empty.className = "empty-category-note";
       empty.textContent = "No tasks yet. Click Add new.";
@@ -111,6 +143,7 @@
     }
     return section;
   }
+
   function groupPiles() {
     if (isGrouping) return;
     const list = document.getElementById("unscheduledList");
@@ -127,6 +160,7 @@
     showActivePile(readState().active);
     isGrouping = false;
   }
+
   function scheduleGrouping() { window.setTimeout(groupPiles, 60); }
   document.addEventListener("DOMContentLoaded", scheduleGrouping);
   window.addEventListener("load", scheduleGrouping);
