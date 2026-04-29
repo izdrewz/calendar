@@ -1,17 +1,17 @@
 (() => {
-  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v4";
+  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v5";
   let isGrouping = false;
 
   const groups = [
-    { id: "uni", title: "Uni", emoji: "📚", type: "Study", terms: ["study", "exam", "note", "clean notes"] },
-    { id: "self-care", title: "Self care", emoji: "🌿", type: "Daily Reset", terms: ["daily reset", "journal", "rest", "gaming", "keyboard"] },
-    { id: "personal", title: "Personal", emoji: "🧾", type: "Admin", terms: ["admin", "shopping", "life planning", "gift", "messages", "reply"] },
-    { id: "cleaning", title: "Cleaning", emoji: "🧽", type: "Cleaning", terms: ["cleaning", "vacuum", "surface", "mirror", "windows", "rubbish", "recycling", "crockery"] },
-    { id: "projects", title: "Projects", emoji: "🧰", type: "Room Setup", terms: ["room setup", "project", "shelves", "storage", "bug", "noise", "hanger", "labels"] },
-    { id: "crafts", title: "Crafts", emoji: "🎨", type: "Creative", terms: ["creative", "craft", "crochet", "dress", "upscale", "cardboard", "canderel"] },
-    { id: "clothes", title: "Clothes", emoji: "👕", type: "Clothes", terms: ["clothes", "sell", "stock", "vinted", "photos", "listed"] },
-    { id: "one-off", title: "One-off", emoji: "📌", type: "Admin", terms: ["one-off"] },
-    { id: "other", title: "Other", emoji: "✨", type: "Admin", terms: [] }
+    { id: "uni", title: "Uni", colour: "#7d99c8", type: "Study", terms: ["study", "exam", "note", "clean notes"] },
+    { id: "self-care", title: "Self care", colour: "#b5cf48", type: "Daily Reset", terms: ["daily reset", "journal", "rest", "gaming", "keyboard"] },
+    { id: "personal", title: "Personal", colour: "#d792a8", type: "Admin", terms: ["admin", "shopping", "life planning", "gift", "messages", "reply"] },
+    { id: "cleaning", title: "Cleaning", colour: "#91c1e6", type: "Cleaning", terms: ["cleaning", "vacuum", "surface", "mirror", "windows", "rubbish", "recycling", "crockery"] },
+    { id: "projects", title: "Projects", colour: "#8f2a51", type: "Room Setup", terms: ["room setup", "project", "shelves", "storage", "bug", "noise", "hanger", "labels"] },
+    { id: "crafts", title: "Crafts", colour: "#c17aa0", type: "Creative", terms: ["creative", "craft", "crochet", "dress", "upscale", "cardboard", "canderel"] },
+    { id: "clothes", title: "Clothes", colour: "#6f173c", type: "Clothes", terms: ["clothes", "sell", "stock", "vinted", "photos", "listed"] },
+    { id: "one-off", title: "One-off", colour: "#e0a437", type: "Admin", terms: ["one-off"] },
+    { id: "other", title: "Other", colour: "#9b8094", type: "Admin", terms: [] }
   ];
 
   function readState() {
@@ -73,8 +73,9 @@
       button.type = "button";
       button.className = `category-box ${state.active === group.id ? "active" : ""}`;
       button.dataset.group = group.id;
+      button.style.setProperty("--category-colour", group.colour);
       button.title = previewText(cards);
-      button.innerHTML = `<span class="category-icon">${group.emoji}</span><span class="category-title">${group.title}</span><span class="category-count">${cards.length}</span><span class="category-preview">${previewText(cards).replaceAll("\n", "<br>")}</span>`;
+      button.innerHTML = `<span class="category-dot" style="--dot:${group.colour}"></span><span class="category-title">${group.title}</span><span class="category-count">${cards.length}</span><span class="category-preview">${previewText(cards).replaceAll("\n", "<br>")}</span>`;
       button.addEventListener("click", () => {
         const next = readState();
         next.active = next.active === group.id ? null : group.id;
@@ -98,7 +99,7 @@
     section.className = "pile-section compact-open-pile";
     section.dataset.group = group.id;
     section.hidden = true;
-    section.innerHTML = `<div class="pile-section-header"><span>${group.emoji} ${group.title}</span><span>${cards.length} task${cards.length === 1 ? "" : "s"}</span><button type="button" class="ghost add-new-category">Add new</button></div><div class="pile-section-grid"></div>`;
+    section.innerHTML = `<div class="pile-section-header"><span><span class="inline-dot" style="--dot:${group.colour}"></span>${group.title}</span><span>${cards.length} task${cards.length === 1 ? "" : "s"}</span><button type="button" class="ghost add-new-category">Add new</button></div><div class="pile-section-grid"></div>`;
     section.querySelector(".add-new-category").addEventListener("click", event => { event.stopPropagation(); openAddForGroup(group); });
     const grid = section.querySelector(".pile-section-grid");
     if (cards.length) cards.forEach(card => grid.appendChild(card));
