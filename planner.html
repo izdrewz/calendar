@@ -3,133 +3,124 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Focus Week Planner</title>
-  <meta name="description" content="ADHD-friendly weekly task planner with grouped task piles above a drag-and-drop calendar.">
+  <title>Calendar</title>
+  <meta name="description" content="ADHD-friendly weekly calendar with compact category task piles.">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="life-admin.css">
+  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="life-admin.css?v=12">
+  <link rel="stylesheet" href="planner-compact.css?v=12">
 </head>
-<body class="planner-focused-page">
-  <header class="app-header contained-header">
+<body class="planner-focused-page compact-calendar-page">
+  <header class="app-header contained-header compact-calendar-header">
     <div>
-      <p class="eyebrow">Focus Week Planner</p>
-      <h1>Pick a pile, then drag tasks into your week.</h1>
-      <p class="subtitle">Task piles sit above the calendar. Choose one group at a time so the rest stay tucked away.</p>
+      <p class="eyebrow">Calendar</p>
+      <h1>Drag tasks into your week.</h1>
     </div>
     <div class="header-actions">
       <a class="nav-button" href="https://izdrewz.github.io/dash/">Dashboard</a>
       <a class="nav-button" href="update.html">Update/fix</a>
-      <a class="nav-button" href="stock.html">Clothes</a>
-      <a class="nav-button" href="gifts.html">Gifts</a>
       <button id="prevWeek" class="ghost" type="button" aria-label="Previous week">←</button>
       <button id="todayWeek" type="button">This week</button>
       <button id="nextWeek" class="ghost" type="button" aria-label="Next week">→</button>
     </div>
   </header>
 
-  <main class="planner-shell">
-    <aside class="planner-sidebar">
-      <section class="panel starter-panel">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Starter setup</p>
-            <h2>Life admin system</h2>
-          </div>
+  <main class="compact-planner-shell">
+    <section class="top-task-area">
+      <section class="panel starter-panel compact-starter-card">
+        <div>
+          <p class="eyebrow">Starter</p>
+          <h2>Life admin system</h2>
         </div>
-        <p class="hint">Adds study, reset, cleaning, projects, clothes, creative, rest, and review task rules.</p>
         <button id="loadStarter" type="button">Load starter pack</button>
       </section>
 
-      <details class="panel compact-details" open>
-        <summary><span>Add weekly recurring task</span></summary>
-        <form id="taskForm" class="task-form">
-          <label>Task name<input id="taskName" name="taskName" type="text" placeholder="Exam study, vacuum, journal..." autocomplete="off" required></label>
-          <div class="form-row">
-            <label>Times per week<input id="taskFrequency" name="taskFrequency" type="number" min="1" max="14" value="3" required></label>
-            <label>Minutes<input id="taskDuration" name="taskDuration" type="number" min="5" max="360" step="5" value="45" required></label>
-          </div>
-          <div class="form-row">
-            <label>Type<select id="taskType" name="taskType"><option>Study</option><option>Daily Reset</option><option>Admin</option><option>Cleaning</option><option>Room Setup</option><option>Shopping</option><option>Clothes</option><option>Creative</option><option>Life Planning</option><option>Rest</option></select></label>
-            <label>Priority<select id="taskPriority" name="taskPriority"><option>Highest</option><option selected>High</option><option>Medium</option><option>Low</option></select></label>
-          </div>
-          <div class="form-row">
-            <label>Energy<select id="taskEnergy" name="taskEnergy"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></label>
-            <label>Category<input id="taskCategory" name="taskCategory" type="text" placeholder="school, room, clothes..."></label>
-          </div>
-          <label>Tiny first step<input id="taskStep" name="taskStep" type="text" placeholder="Open notes, collect cups, pick 5 items..."></label>
-          <label>Details<textarea id="taskDetails" name="taskDetails" rows="3" placeholder="Add context, rules, or what counts as done."></textarea></label>
-          <button type="submit">Create weekly task</button>
-        </form>
-      </details>
-
-      <details class="panel compact-details">
-        <summary><span>Add one-off task</span></summary>
-        <p class="hint">Use for temporary tasks. One-off cards have a Remove button.</p>
-        <form id="oneOffForm" class="task-form compact-form">
-          <label>One-off task<input id="oneOffName" name="oneOffName" type="text" placeholder="Measure window for mesh..." autocomplete="off" required></label>
-          <div class="form-row">
-            <label>Minutes<input id="oneOffDuration" name="oneOffDuration" type="number" min="5" max="360" step="5" value="30" required></label>
-            <label>Type<select id="oneOffType" name="oneOffType"><option>Admin</option><option>Study</option><option>Daily Reset</option><option>Cleaning</option><option>Room Setup</option><option>Shopping</option><option>Clothes</option><option>Creative</option><option>Life Planning</option><option>Rest</option></select></label>
-          </div>
-          <div class="form-row">
-            <label>Priority<select id="oneOffPriority" name="oneOffPriority"><option>Highest</option><option>High</option><option selected>Medium</option><option>Low</option></select></label>
-            <label>Energy<select id="oneOffEnergy" name="oneOffEnergy"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></label>
-          </div>
-          <label>Tiny first step<input id="oneOffStep" name="oneOffStep" type="text" placeholder="Take photo, open message, grab tape measure..."></label>
-          <label>Details<textarea id="oneOffDetails" name="oneOffDetails" rows="2" placeholder="What needs to happen?"></textarea></label>
-          <button type="submit">Add one-off card</button>
-        </form>
-      </details>
-
-      <details class="panel compact-details">
-        <summary><span>Weekly task rules</span></summary>
-        <div id="taskLibrary" class="rules-list"></div>
-      </details>
-    </aside>
-
-    <section class="planner-board">
-      <section class="panel focus-panel slim-focus">
-        <div>
-          <p class="eyebrow">Now</p>
-          <h2 id="focusTitle">Today focus</h2>
-          <p id="focusText" class="hint">Your next scheduled task will show here.</p>
-        </div>
-        <div class="focus-actions">
-          <button id="startFocus" type="button">Start 25 min focus</button>
-          <button id="resetFocus" class="ghost" type="button">Reset</button>
-          <span id="focusTimer" class="timer">25:00</span>
-        </div>
-      </section>
-
-      <section class="panel pile-panel">
-        <div class="panel-heading">
+      <section class="panel pile-panel compact-pile-panel">
+        <div class="compact-pile-title">
           <div>
-            <p class="eyebrow">Task piles</p>
-            <h2>Choose a group, then drag cards down into the calendar</h2>
+            <p class="eyebrow">Task boxes</p>
+            <h2>Hover to preview, click to open</h2>
           </div>
           <span id="unscheduledCount" class="pill">0</span>
         </div>
-        <p class="hint">Only one pile opens at a time. The other groups stay tucked away to reduce visual clutter.</p>
         <div id="unscheduledList" class="card-list empty-list"></div>
       </section>
+    </section>
 
-      <section class="toolbar panel compact-toolbar">
-        <div>
-          <p id="weekLabel" class="week-label">Week</p>
-          <div id="progressText" class="progress-text">0 scheduled</div>
+    <details id="weeklyAddPanel" class="panel compact-details hidden-add-panel">
+      <summary><span>Add weekly recurring task</span></summary>
+      <form id="taskForm" class="task-form compact-task-form">
+        <label>Task name<input id="taskName" name="taskName" type="text" placeholder="Exam study, vacuum, journal..." autocomplete="off" required></label>
+        <div class="form-row">
+          <label>Times per week<input id="taskFrequency" name="taskFrequency" type="number" min="1" max="14" value="3" required></label>
+          <label>Minutes<input id="taskDuration" name="taskDuration" type="number" min="5" max="360" step="5" value="45" required></label>
         </div>
-        <div class="toggles">
-          <label class="switch"><input id="calmMode" type="checkbox"><span>Calm mode</span></label>
-          <label class="switch"><input id="hideDone" type="checkbox"><span>Hide done</span></label>
-          <button id="enableReminders" class="ghost" type="button">Enable reminders</button>
-          <button id="exportData" class="ghost" type="button">Export</button>
-          <label class="file-button">Import<input id="importData" type="file" accept="application/json"></label>
+        <div class="form-row">
+          <label>Type<select id="taskType" name="taskType"><option>Study</option><option>Daily Reset</option><option>Admin</option><option>Cleaning</option><option>Room Setup</option><option>Shopping</option><option>Clothes</option><option>Creative</option><option>Life Planning</option><option>Rest</option></select></label>
+          <label>Priority<select id="taskPriority" name="taskPriority"><option>Highest</option><option selected>High</option><option>Medium</option><option>Low</option></select></label>
         </div>
-      </section>
+        <div class="form-row">
+          <label>Energy<select id="taskEnergy" name="taskEnergy"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></label>
+          <label>Category<input id="taskCategory" name="taskCategory" type="text" placeholder="school, room, clothes..."></label>
+        </div>
+        <label>Tiny first step<input id="taskStep" name="taskStep" type="text" placeholder="Open notes, collect cups, pick 5 items..."></label>
+        <label>Details<textarea id="taskDetails" name="taskDetails" rows="2" placeholder="Add context, rules, or what counts as done."></textarea></label>
+        <button type="submit">Create weekly task</button>
+      </form>
+    </details>
 
-      <section class="calendar-shell panel contained-calendar" aria-label="Weekly calendar">
-        <div id="calendar" class="calendar"></div>
-      </section>
+    <details id="oneOffAddPanel" class="panel compact-details hidden-add-panel">
+      <summary><span>Add one-off task</span></summary>
+      <form id="oneOffForm" class="task-form compact-form compact-task-form">
+        <label>One-off task<input id="oneOffName" name="oneOffName" type="text" placeholder="Measure window for mesh..." autocomplete="off" required></label>
+        <div class="form-row">
+          <label>Minutes<input id="oneOffDuration" name="oneOffDuration" type="number" min="5" max="360" step="5" value="30" required></label>
+          <label>Type<select id="oneOffType" name="oneOffType"><option>Admin</option><option>Study</option><option>Daily Reset</option><option>Cleaning</option><option>Room Setup</option><option>Shopping</option><option>Clothes</option><option>Creative</option><option>Life Planning</option><option>Rest</option></select></label>
+        </div>
+        <div class="form-row">
+          <label>Priority<select id="oneOffPriority" name="oneOffPriority"><option>Highest</option><option>High</option><option selected>Medium</option><option>Low</option></select></label>
+          <label>Energy<select id="oneOffEnergy" name="oneOffEnergy"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></label>
+        </div>
+        <label>Tiny first step<input id="oneOffStep" name="oneOffStep" type="text" placeholder="Take photo, open message, grab tape measure..."></label>
+        <label>Details<textarea id="oneOffDetails" name="oneOffDetails" rows="2" placeholder="What needs to happen?"></textarea></label>
+        <button type="submit">Add one-off card</button>
+      </form>
+    </details>
+
+    <section class="toolbar panel compact-toolbar calendar-top-toolbar">
+      <div>
+        <p id="weekLabel" class="week-label">Week</p>
+        <div id="progressText" class="progress-text">0 scheduled</div>
+      </div>
+      <div class="toggles">
+        <label class="switch"><input id="calmMode" type="checkbox"><span>Calm mode</span></label>
+        <label class="switch"><input id="hideDone" type="checkbox"><span>Hide done</span></label>
+        <button id="enableReminders" class="ghost" type="button">Enable reminders</button>
+        <button id="exportData" class="ghost" type="button">Export</button>
+        <label class="file-button">Import<input id="importData" type="file" accept="application/json"></label>
+      </div>
+    </section>
+
+    <section class="calendar-shell panel contained-calendar compact-calendar-box" aria-label="Weekly calendar">
+      <div id="calendar" class="calendar"></div>
+    </section>
+
+    <details class="panel compact-details compact-rules-panel">
+      <summary><span>Weekly task rules</span></summary>
+      <div id="taskLibrary" class="rules-list"></div>
+    </details>
+
+    <section class="panel focus-panel slim-focus compact-focus-panel">
+      <div>
+        <p class="eyebrow">Now</p>
+        <h2 id="focusTitle">Today focus</h2>
+        <p id="focusText" class="hint">Your next scheduled task will show here.</p>
+      </div>
+      <div class="focus-actions">
+        <button id="startFocus" type="button">Start 25 min focus</button>
+        <button id="resetFocus" class="ghost" type="button">Reset</button>
+        <span id="focusTimer" class="timer">25:00</span>
+      </div>
     </section>
   </main>
 
@@ -153,8 +144,9 @@
     </article>
   </template>
 
-  <script src="app.js"></script>
-  <script src="planner-piles.js"></script>
-  <script src="ics-export-safe.js"></script>
+  <script src="app.js?v=12"></script>
+  <script src="planner-piles.js?v=12"></script>
+  <script src="planner-compact.js?v=12"></script>
+  <script src="ics-export-safe.js?v=12"></script>
 </body>
 </html>
