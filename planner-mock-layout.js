@@ -43,6 +43,8 @@
   }
 
   function energyFromCard(card) {
+    const selectValue = card.querySelector('.task-intensity-control select')?.value;
+    if (selectValue === 'high' || selectValue === 'medium' || selectValue === 'low') return selectValue;
     const text = [card.querySelector('.task-meta')?.textContent, card.textContent].join(' ').toLowerCase();
     if (text.includes('high')) return 'high';
     if (text.includes('low')) return 'low';
@@ -59,13 +61,17 @@
       const title = card.querySelector('h3');
       if (title) title.textContent = title.textContent.replace(/\s+\d+\s*\/\s*\d+\s*$/g, '');
       const titleRow = card.querySelector('.card-title-row');
-      if (titleRow && !card.querySelector('.effort-stars')) {
-        const stars = document.createElement('span');
-        stars.className = 'effort-stars';
+      if (titleRow) {
+        let stars = card.querySelector('.effort-stars');
+        if (!stars) {
+          stars = document.createElement('span');
+          stars.className = 'effort-stars';
+          titleRow.appendChild(stars);
+        }
         const level = energyFromCard(card);
         stars.textContent = '★'.repeat(ENERGY_STARS[level] || 2);
-        stars.title = `${level} effort`;
-        titleRow.appendChild(stars);
+        stars.title = `${level} intensity`;
+        stars.dataset.intensity = level;
       }
       if (card.closest('#calendar') && !card.querySelector('.calendar-card-hint')) {
         const hint = document.createElement('span');
@@ -100,6 +106,7 @@
   }
 
   function installTemplateMode() {
+    if (window.__plannerTemplateFixesLoaded) return;
     if (templateModeInstalled) return;
     if (typeof state === 'undefined' || typeof currentWeekKey === 'undefined' || typeof render !== 'function') return;
     templateModeInstalled = true;
@@ -214,6 +221,7 @@
   document.addEventListener('DOMContentLoaded', compactCalendarAfterRender);
   window.addEventListener('load', compactCalendarAfterRender);
   document.addEventListener('click', () => setTimeout(compactCalendarAfterRender, 80), true);
+  document.addEventListener('change', () => setTimeout(compactCalendarAfterRender, 80), true);
   document.addEventListener('drop', () => setTimeout(compactCalendarAfterRender, 120), true);
   new MutationObserver(() => requestAnimationFrame(compactCalendarAfterRender)).observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true });
 })();
