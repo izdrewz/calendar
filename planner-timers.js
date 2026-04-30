@@ -28,7 +28,7 @@
   function taskTitle(planner, instance) {
     if (instance.title) return instance.title;
     const task = planner.tasks?.find(item => item.id === instance.taskId);
-    return task ? `${task.name}${instance.sequence ? ` ${instance.sequence}/${task.frequency || 1}` : ''}` : 'Planned task';
+    return task ? task.name : 'Planned task';
   }
   function scheduledTasks() {
     const planner = readPlanner();
@@ -47,26 +47,58 @@
     if (!panel || panel.dataset.roundTimersReady) return panel;
     panel.dataset.roundTimersReady = 'true';
     panel.innerHTML = `
-      <div class="timer-top">
-        <h2>Timers</h2>
-        <p class="timer-help">Round task timers. Add as many as you need.</p>
-      </div>
-      <form id="roundTimerForm" class="round-timer-form">
-        <label>Task
-          <select id="roundTimerTask"></select>
-        </label>
-        <label>Minutes
-          <input id="roundTimerMinutes" type="number" min="1" max="240" step="1" value="25">
-        </label>
-        <button type="submit">Add timer</button>
-      </form>
-      <div id="roundTimers" class="round-timer-list"></div>
+      <button id="timerClockButton" class="timer-clock-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Open timer options">
+        <span id="timerClockValue">00:00</span>
+      </button>
+      <section id="timerPopup" class="timer-popup" hidden>
+        <form id="roundTimerForm" class="round-timer-form">
+          <label>Task
+            <select id="roundTimerTask"></select>
+          </label>
+          <label>Minutes
+            <input id="roundTimerMinutes" type="number" min="1" max="240" step="1" value="25">
+          </label>
+          <button type="submit">Add timer</button>
+        </form>
+        <div id="roundTimers" class="round-timer-list"></div>
+      </section>
     `;
     panel.querySelector('#roundTimerForm').addEventListener('submit', event => {
       event.preventDefault();
       addTimer();
+      openPopup();
+    });
+    panel.querySelector('#timerClockButton').addEventListener('click', event => {
+      event.stopPropagation();
+      togglePopup();
+    });
+    document.addEventListener('click', event => {
+      if (!panel.contains(event.target)) closePopup();
+    }, true);
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closePopup();
     });
     return panel;
+  }
+
+  function openPopup() {
+    const popup = document.getElementById('timerPopup');
+    const button = document.getElementById('timerClockButton');
+    if (!popup || !button) return;
+    popup.hidden = false;
+    button.setAttribute('aria-expanded', 'true');
+  }
+  function closePopup() {
+    const popup = document.getElementById('timerPopup');
+    const button = document.getElementById('timerClockButton');
+    if (!popup || !button) return;
+    popup.hidden = true;
+    button.setAttribute('aria-expanded', 'false');
+  }
+  function togglePopup() {
+    const popup = document.getElementById('timerPopup');
+    if (!popup) return;
+    popup.hidden ? openPopup() : closePopup();
   }
 
   function renderTaskOptions() {
@@ -78,7 +110,7 @@
     if (!tasks.length) {
       const opt = document.createElement('option');
       opt.value = 'custom';
-      opt.textContent = 'No calendar tasks yet — custom timer';
+      opt.textContent = 'Custom timer';
       opt.dataset.duration = '25';
       select.appendChild(opt);
     } else {
@@ -136,42 +168,53 @@
     });
     saveTimers(timers);
     renderTimers();
+    openPopup();
   }
   function restartTimer(id) {
     const timers = readTimers().map(timer => timer.id === id ? { ...timer, remaining: timer.duration, running: false, lastTick: null } : timer);
     saveTimers(timers);
     renderTimers();
+    openPopup();
   }
   function endTimer(id) {
     const timers = readTimers().map(timer => timer.id === id ? { ...timer, remaining: 0, running: false, lastTick: null } : timer);
     saveTimers(timers);
     renderTimers();
+    openPopup();
   }
   function removeTimer(id) {
     saveTimers(readTimers().filter(timer => timer.id !== id));
     renderTimers();
+    openPopup();
+  }
+
+  function updateClock(timers) {
+    const clock = document.getElementById('timerClockValue');
+    const button = document.getElementById('timerClockButton');
+    if (!clock || !button) return;
+    const timer = timers.find(item => item.running) || timers.find(item => item.remaining > 0) || timers[0];
+    clock.textContent = timer ? fmt(timer.remaining) : '00:00';
+    button.classList.toggle('running', Boolean(timer?.running));
+    button.title = timer ? timer.title : 'Open timer options';
   }
 
   function renderTimers() {
     ensurePanel();
     renderTaskOptions();
     updateRunningTimers();
+    const timers = readTimers();
+    updateClock(timers);
     const list = document.getElementById('roundTimers');
     if (!list) return;
-    const timers = readTimers();
-    if (!timers.length) {
-      list.innerHTML = '<p class="timer-empty">Add a task timer from your calendar.</p>';
-      return;
-    }
     list.innerHTML = '';
     timers.forEach(timer => {
       const progress = timer.duration ? Math.max(0, Math.min(1, timer.remaining / timer.duration)) : 0;
       const card = document.createElement('article');
       card.className = `round-timer-card ${timer.running ? 'running' : ''}`;
       card.innerHTML = `
-        <div class="round-clock" style="--remaining:${progress}">
+        <button class="round-clock mini-clock" type="button" data-action="toggle" style="--remaining:${progress}">
           <span>${fmt(timer.remaining)}</span>
-        </div>
+        </button>
         <h3>${timer.title}</h3>
         <div class="round-timer-actions">
           <button type="button" data-action="toggle">${timer.running ? 'Pause' : 'Play'}</button>
@@ -180,7 +223,7 @@
           <button type="button" data-action="remove" class="ghost">Remove</button>
         </div>
       `;
-      card.querySelector('[data-action="toggle"]').addEventListener('click', () => toggleTimer(timer.id));
+      card.querySelectorAll('[data-action="toggle"]').forEach(button => button.addEventListener('click', () => toggleTimer(timer.id)));
       card.querySelector('[data-action="restart"]').addEventListener('click', () => restartTimer(timer.id));
       card.querySelector('[data-action="end"]').addEventListener('click', () => endTimer(timer.id));
       card.querySelector('[data-action="remove"]').addEventListener('click', () => removeTimer(timer.id));
