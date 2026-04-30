@@ -1,4 +1,4 @@
-const CACHE_NAME = "focus-week-planner-v28-patchwork-design";
+const CACHE_NAME = "focus-week-planner-v29-template-intensity-cooler";
 const ASSETS = [
   "./",
   "./index.html",
@@ -12,6 +12,7 @@ const ASSETS = [
   "./planner-timers.css",
   "./planner-mushroom.css",
   "./app.js",
+  "./planner-template-fixes.js",
   "./planner-piles.js",
   "./planner-compact.js",
   "./planner-mock-layout.js",
