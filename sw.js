@@ -1,4 +1,4 @@
-const CACHE_NAME = "focus-week-planner-v33-compact-tray";
+const CACHE_NAME = "focus-week-planner-v34-hard-cap-tray";
 const ASSETS = [
   "./",
   "./index.html",
