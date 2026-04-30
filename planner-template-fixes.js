@@ -4,6 +4,7 @@
 
   const TEMPLATE_SOURCE = "recurring-template";
   const COPY_SOURCE = "recurring-copy";
+  const EFFORT_LABELS = { low: "Low", medium: "Medium", high: "High" };
 
   function week() {
     const key = currentWeekKey();
@@ -72,6 +73,48 @@
 
       templates.slice(1).forEach(instance => { instance.deleted = true; });
     });
+  }
+
+  function setEffort(instance, value) {
+    const effort = EFFORT_LABELS[value] ? value : "medium";
+    if (instance.taskId) {
+      const task = getTask(instance.taskId);
+      if (task) task.energy = effort;
+      getWeekInstances().forEach(item => {
+        if (item.taskId === instance.taskId) item.energy = "";
+      });
+    } else {
+      instance.energy = effort;
+    }
+    saveState();
+  }
+
+  function addEffortControl(card, instance, data) {
+    const actions = card.querySelector(".card-actions");
+    if (!actions || card.querySelector(".task-intensity-control")) return;
+
+    const current = (data.energy || "medium").toLowerCase();
+    const label = document.createElement("label");
+    label.className = "task-intensity-control";
+    label.innerHTML = `
+      <span>Intensity</span>
+      <select aria-label="Task intensity">
+        <option value="low">Low ★</option>
+        <option value="medium">Medium ★★</option>
+        <option value="high">High ★★★</option>
+      </select>
+    `;
+    const select = label.querySelector("select");
+    select.value = EFFORT_LABELS[current] ? current : "medium";
+    select.addEventListener("click", event => event.stopPropagation());
+    select.addEventListener("dragstart", event => event.preventDefault());
+    select.addEventListener("change", event => {
+      event.stopPropagation();
+      setEffort(instance, select.value);
+      normaliseTemplates();
+      render();
+    });
+    actions.prepend(label);
   }
 
   const originalEnsureWeek = ensureWeek;
@@ -150,6 +193,8 @@
     const title = card.querySelector("h3");
     if (title) title.textContent = data.baseTitle || data.title;
 
+    addEffortControl(card, instance, data);
+
     if (isTaskTemplate(instance)) {
       card.classList.add("template-card");
       card.setAttribute("aria-label", `${data.baseTitle} reusable template. Drag to copy into the calendar.`);
@@ -173,7 +218,7 @@
     return card;
   };
 
-  function ensureIntensityControl() {
+  function ensureColourStrengthControl() {
     const toolbar = document.querySelector(".mock-calendar-toolbar .toggles");
     if (!toolbar || document.getElementById("visualIntensity")) return;
     state.settings.visualIntensity ||= "balanced";
@@ -181,8 +226,8 @@
     label.className = "visual-intensity-control calendar-tip";
     label.dataset.tip = "Choose how strong the planner colours and patchwork border feel.";
     label.innerHTML = `
-      <span>Intensity</span>
-      <select id="visualIntensity" aria-label="Visual intensity">
+      <span>Colour strength</span>
+      <select id="visualIntensity" aria-label="Colour strength">
         <option value="soft">Soft</option>
         <option value="balanced">Balanced</option>
         <option value="bold">Bold</option>
@@ -211,7 +256,7 @@
   render = function templateRender() {
     normaliseTemplates();
     originalRender();
-    ensureIntensityControl();
+    ensureColourStrengthControl();
     applyIntensityClass();
   };
 
