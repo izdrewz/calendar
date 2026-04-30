@@ -1,6 +1,7 @@
 (() => {
-  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v7";
+  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v8";
   let isGrouping = false;
+  let groupFrame = null;
 
   const groups = [
     { id: "uni", title: "Uni", colour: "#3f78b5", type: "Study", terms: ["study", "uni", "exam", "note", "clean notes"] },
@@ -119,26 +120,17 @@
         const next = readState();
         next.active = next.active === group.id ? null : group.id;
         writeState(next);
-        showActivePile(next.active);
+        groupPiles(true);
       });
       controls.appendChild(button);
     });
   }
 
-  function showActivePile(groupId) {
-    document.querySelectorAll(".category-box").forEach(tab => tab.classList.toggle("active", !!groupId && tab.dataset.group === groupId));
-    document.querySelectorAll(".pile-section").forEach(section => {
-      const isOpen = !!groupId && section.dataset.group === groupId;
-      section.hidden = !isOpen;
-      section.classList.toggle("is-open", isOpen);
-    });
-  }
-
-  function buildSection(group, cards) {
+  function buildSection(group, cards, activeGroup) {
     const section = document.createElement("section");
-    section.className = "pile-section compact-open-pile clear-drag-tray";
+    section.className = `pile-section compact-open-pile clear-drag-tray ${activeGroup === group.id ? "is-open" : ""}`;
     section.dataset.group = group.id;
-    section.hidden = true;
+    section.hidden = activeGroup !== group.id;
     section.style.setProperty("--task-colour", group.colour);
     section.innerHTML = `<div class="pile-section-header"><span><span class="inline-dot" style="--dot:${group.colour}"></span>${group.title}</span><span>${cards.length} card${cards.length === 1 ? "" : "s"}</span><button type="button" class="ghost add-new-category">Add new</button></div><div class="pile-section-grid"></div>`;
     section.querySelector(".add-new-category").addEventListener("click", event => { event.stopPropagation(); openAddForGroup(group); });
@@ -157,27 +149,38 @@
     return section;
   }
 
-  function groupPiles() {
+  function groupPiles(force = false) {
     if (isGrouping) return;
     const list = document.getElementById("unscheduledList");
     if (!list) return;
     const cards = [...list.querySelectorAll(":scope > .task-card, :scope .pile-section-grid > .task-card")];
-    if (!cards.length && list.classList.contains("pile-list")) return;
+    if (!force && !cards.length && list.classList.contains("pile-list")) return;
     isGrouping = true;
+    const activeGroup = readState().active;
     const buckets = new Map(groups.map(group => [group.id, []]));
     cards.forEach(card => buckets.get(groupFor(card).id).push(card));
     makeControls(list, buckets);
     list.innerHTML = "";
     list.className = "card-list pile-list compact-pile-list";
-    groups.forEach(group => list.appendChild(buildSection(group, buckets.get(group.id) || [])));
-    showActivePile(readState().active);
+    if (activeGroup) {
+      const group = groups.find(item => item.id === activeGroup) || groups[0];
+      list.appendChild(buildSection(group, buckets.get(group.id) || [], activeGroup));
+    }
     isGrouping = false;
   }
 
-  function scheduleGrouping() { window.setTimeout(groupPiles, 60); }
-  document.addEventListener("DOMContentLoaded", scheduleGrouping);
-  window.addEventListener("load", scheduleGrouping);
-  document.addEventListener("submit", scheduleGrouping, true);
-  document.addEventListener("click", event => { if (event.target.closest("button") || event.target.closest(".task-card") || event.target.closest(".slot")) scheduleGrouping(); }, true);
-  document.addEventListener("drop", scheduleGrouping, true);
+  function scheduleGrouping(force = false) {
+    if (groupFrame) return;
+    groupFrame = requestAnimationFrame(() => {
+      groupFrame = null;
+      groupPiles(force);
+    });
+  }
+  document.addEventListener("DOMContentLoaded", () => scheduleGrouping(true));
+  window.addEventListener("load", () => scheduleGrouping(true));
+  document.addEventListener("submit", () => scheduleGrouping(true), true);
+  document.addEventListener("drop", () => setTimeout(() => scheduleGrouping(true), 80), true);
+  document.addEventListener("click", event => {
+    if (event.target.closest("#pileGroupTabs,.task-card,.slot,#prevWeek,#nextWeek,#todayWeek")) setTimeout(() => scheduleGrouping(true), 80);
+  }, true);
 })();
