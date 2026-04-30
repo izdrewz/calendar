@@ -1,4 +1,4 @@
-/* Current planner UX fixes: cleaner category tray, popup options, focus modes */
+/* Current planner UX fixes: compact category tray, popup options, focus modes */
 
 body.mock-calendar-page {
   --slot-height: 48px;
@@ -43,12 +43,15 @@ body.mock-calendar-page {
 
 .mock-category-panel {
   z-index: 5000 !important;
+  overflow: visible !important;
+  padding-bottom: .35rem !important;
 }
 
 .mock-category-panel .category-preview {
   z-index: 200000 !important;
   max-height: 260px;
   overflow: auto;
+  pointer-events: none;
 }
 
 .mock-category-panel .category-box:nth-last-child(-n+3) .category-preview {
@@ -62,22 +65,121 @@ body.mock-calendar-page {
   display: none !important;
 }
 
-.mock-category-panel .task-card {
-  gap: .38rem !important;
+.mock-category-panel .compact-open-pile {
+  max-height: 172px !important;
+  overflow: hidden !important;
+  border-top: 3px solid rgba(255, 248, 236, .72) !important;
+  position: relative !important;
+  margin-top: 0 !important;
+  padding: 0 !important;
 }
 
-.mock-category-panel .task-meta {
+.mock-category-panel .compact-open-pile.is-open {
+  display: block !important;
+}
+
+.mock-category-panel .pile-section-header {
+  min-height: 40px !important;
+  padding: .42rem .62rem !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 4 !important;
+  font-size: .82rem !important;
+}
+
+.mock-category-panel .pile-section-header span:nth-child(2) {
   font-size: .72rem !important;
 }
 
+.mock-category-panel .pile-section-header .add-new-category {
+  font-size: .72rem !important;
+  padding: .32rem .55rem !important;
+}
+
+.mock-category-panel .pile-section-grid {
+  display: flex !important;
+  gap: .55rem !important;
+  max-height: 128px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding: .55rem .65rem .7rem !important;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mock-category-panel .pile-section-grid::after {
+  content: "";
+  flex: 0 0 .1rem;
+}
+
+.mock-category-panel .task-card {
+  flex: 0 0 230px !important;
+  width: 230px !important;
+  min-width: 230px !important;
+  max-width: 230px !important;
+  min-height: 92px !important;
+  max-height: 108px !important;
+  overflow: hidden !important;
+  gap: .25rem !important;
+  padding: .5rem .56rem !important;
+  scroll-snap-align: start;
+}
+
+.mock-category-panel .task-main {
+  gap: .35rem !important;
+}
+
+.mock-category-panel .task-card h3 {
+  font-size: .82rem !important;
+  line-height: 1.08 !important;
+  max-width: 150px !important;
+}
+
+.mock-category-panel .task-meta {
+  font-size: .64rem !important;
+  line-height: 1.12 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden !important;
+}
+
+.mock-category-panel .card-title-row {
+  align-items: center !important;
+  gap: .25rem !important;
+}
+
+.mock-category-panel .type-badge {
+  font-size: .58rem !important;
+  padding: .12rem .32rem !important;
+}
+
+.mock-category-panel .effort-stars {
+  font-size: .72rem !important;
+  line-height: 1 !important;
+}
+
+.mock-category-panel .status-dot {
+  width: .55rem !important;
+  height: .55rem !important;
+}
+
 .mock-category-panel .card-actions {
-  gap: .3rem !important;
+  gap: .25rem !important;
+  margin-top: .08rem !important;
+}
+
+.mock-category-panel .done-button,
+.mock-category-panel .skip-button,
+.mock-category-panel .unschedule-button,
+.mock-category-panel .remove-button {
+  display: none !important;
 }
 
 .mock-category-panel .details-button,
 .mock-category-panel .options-button {
-  font-size: .78rem !important;
-  padding: .42rem .62rem !important;
+  font-size: .68rem !important;
+  padding: .32rem .5rem !important;
 }
 
 .task-intensity-control {
@@ -113,6 +215,7 @@ body.mock-calendar-page {
 
 .mock-calendar-box .day-header {
   padding: .42rem .35rem !important;
+  cursor: pointer;
 }
 
 .mock-calendar-box .day-header div:last-child {
@@ -137,10 +240,6 @@ body.mock-calendar-page {
   padding: .28rem .5rem !important;
   font-size: .68rem !important;
   box-shadow: none !important;
-}
-
-.mock-calendar-box .day-header {
-  cursor: pointer;
 }
 
 .mock-calendar-box .day-header.focused-day {
@@ -279,6 +378,21 @@ body.day-focus[data-focus-day="6"] .mock-calendar-box .calendar > .slot:nth-chil
   .mock-timer-panel {
     height: 210px !important;
     max-height: 210px !important;
+  }
+
+  .mock-category-panel .compact-open-pile {
+    max-height: 160px !important;
+  }
+
+  .mock-category-panel .pile-section-grid {
+    max-height: 116px !important;
+  }
+
+  .mock-category-panel .task-card {
+    flex-basis: 210px !important;
+    width: 210px !important;
+    min-width: 210px !important;
+    max-width: 210px !important;
   }
 
   .mock-calendar-box {
