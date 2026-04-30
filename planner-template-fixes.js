@@ -5,7 +5,17 @@
   const TEMPLATE_SOURCE = "recurring-template";
   const COPY_SOURCE = "recurring-copy";
   const EFFORT_LABELS = { low: "Low", medium: "Medium", high: "High" };
-  const TYPE_OPTIONS = ["Study", "Daily Reset", "Admin", "Cleaning", "Room Setup", "Shopping", "Clothes", "Creative", "Life Planning", "Rest"];
+  const CATEGORY_OPTIONS = [
+    { id: "uni", label: "Uni", type: "Study", category: "uni study" },
+    { id: "self-care", label: "Self care", type: "Daily Reset", category: "self care" },
+    { id: "personal", label: "Personal", type: "Admin", category: "personal admin" },
+    { id: "cleaning", label: "Cleaning", type: "Cleaning", category: "cleaning" },
+    { id: "projects", label: "Projects", type: "Room Setup", category: "projects" },
+    { id: "creativity", label: "Creativity", type: "Creative", category: "creativity crafts" },
+    { id: "clothes", label: "Clothes", type: "Clothes", category: "clothes" },
+    { id: "one-off", label: "One-off", type: "Admin", category: "one-off" },
+    { id: "other", label: "Other", type: "Admin", category: "other" }
+  ];
 
   let calendarFullscreen = false;
   let focusDay = null;
@@ -15,6 +25,23 @@
     state.weeks[key] ||= { instances: [] };
     state.weeks[key].instances ||= [];
     return state.weeks[key];
+  }
+
+  function categoryForData(data) {
+    const text = [data.type, data.category, data.baseTitle, data.title].join(" ").toLowerCase();
+    if (text.includes("study") || text.includes("uni") || text.includes("exam") || text.includes("note")) return "uni";
+    if (text.includes("self care") || text.includes("daily reset") || text.includes("journal") || text.includes("rest")) return "self-care";
+    if (text.includes("clean")) return "cleaning";
+    if (text.includes("room setup") || text.includes("project") || text.includes("storage") || text.includes("shelf") || text.includes("bug") || text.includes("noise")) return "projects";
+    if (text.includes("creative") || text.includes("creativity") || text.includes("craft") || text.includes("crochet") || text.includes("upscale") || text.includes("dress")) return "creativity";
+    if (text.includes("clothes") || text.includes("vinted") || text.includes("sell")) return "clothes";
+    if (text.includes("one-off") || text.includes("one off")) return "one-off";
+    if (text.includes("personal") || text.includes("admin") || text.includes("shopping") || text.includes("gift") || text.includes("message")) return "personal";
+    return "other";
+  }
+
+  function categoryOption(id) {
+    return CATEGORY_OPTIONS.find(option => option.id === id) || CATEGORY_OPTIONS[CATEGORY_OPTIONS.length - 1];
   }
 
   function isTaskTemplate(instance) {
@@ -92,13 +119,13 @@
     }
   }
 
-  function setTypeAndCategory(instance, type, category) {
-    const cleanType = TYPE_OPTIONS.includes(type) ? type : "Admin";
-    const cleanCategory = String(category || cleanType).trim();
+  function setCategory(instance, categoryId, customLabel) {
+    const option = categoryOption(categoryId);
+    const cleanCategory = String(customLabel || option.category || option.label).trim();
     if (instance.taskId) {
       const task = getTask(instance.taskId);
       if (task) {
-        task.type = cleanType;
+        task.type = option.type;
         task.category = cleanCategory;
       }
       getWeekInstances().forEach(item => {
@@ -108,7 +135,7 @@
         }
       });
     } else {
-      instance.type = cleanType;
+      instance.type = option.type;
       instance.category = cleanCategory;
     }
   }
@@ -143,11 +170,11 @@
               <option value="high">High ★★★</option>
             </select>
           </label>
-          <label>Category
-            <select id="taskOptionsType"></select>
+          <label>Move to category
+            <select id="taskOptionsCategoryGroup"></select>
           </label>
           <label>Custom category label
-            <input id="taskOptionsCategory" type="text" placeholder="Uni, Personal, Cleaning...">
+            <input id="taskOptionsCategory" type="text" placeholder="Optional label">
           </label>
           <label>Details
             <textarea id="taskOptionsDetails" rows="4" placeholder="Optional notes for this task"></textarea>
@@ -160,12 +187,12 @@
       </div>
     `;
     document.body.appendChild(modal);
-    const typeSelect = modal.querySelector("#taskOptionsType");
-    TYPE_OPTIONS.forEach(type => {
+    const categorySelect = modal.querySelector("#taskOptionsCategoryGroup");
+    CATEGORY_OPTIONS.forEach(optionData => {
       const option = document.createElement("option");
-      option.value = type;
-      option.textContent = type;
-      typeSelect.appendChild(option);
+      option.value = optionData.id;
+      option.textContent = optionData.label;
+      categorySelect.appendChild(option);
     });
     modal.addEventListener("click", event => {
       if (event.target === modal || event.target.closest(".planner-modal-close") || event.target.closest(".planner-modal-cancel")) {
@@ -178,11 +205,12 @@
   function openTaskOptions(instance) {
     const modal = ensureOptionsModal();
     const data = modelFor(instance);
+    const currentCategory = categoryForData(data);
     modal.dataset.instanceId = instance.id;
     modal.querySelector("#taskOptionsTitle").textContent = data.baseTitle || data.title || "Task options";
     modal.querySelector("#taskOptionsIntensity").value = (data.energy || "medium").toLowerCase();
-    modal.querySelector("#taskOptionsType").value = TYPE_OPTIONS.includes(data.type) ? data.type : "Admin";
-    modal.querySelector("#taskOptionsCategory").value = data.category || data.type || "";
+    modal.querySelector("#taskOptionsCategoryGroup").value = currentCategory;
+    modal.querySelector("#taskOptionsCategory").value = data.category || "";
     modal.querySelector("#taskOptionsDetails").value = data.details || instance.note || "";
     modal.hidden = false;
     modal.querySelector("#taskOptionsIntensity")?.focus();
@@ -193,7 +221,7 @@
       const current = getWeekInstances().find(item => item.id === modal.dataset.instanceId && !item.deleted);
       if (!current) return;
       setEffort(current, modal.querySelector("#taskOptionsIntensity").value);
-      setTypeAndCategory(current, modal.querySelector("#taskOptionsType").value, modal.querySelector("#taskOptionsCategory").value);
+      setCategory(current, modal.querySelector("#taskOptionsCategoryGroup").value, modal.querySelector("#taskOptionsCategory").value);
       setDetails(current, modal.querySelector("#taskOptionsDetails").value);
       normaliseTemplates();
       saveState();
