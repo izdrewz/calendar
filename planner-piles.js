@@ -14,6 +14,15 @@
     { id: "other", title: "Other", colour: "#4f2441", type: "Admin", terms: [] }
   ];
 
+  const starterGuide = [
+    "Starter setup guide:",
+    "1. Click a category to open its task tray.",
+    "2. Drag a card into a calendar time slot to copy it there.",
+    "3. Use Options on a card to change intensity, details, or category.",
+    "4. Click a date header to focus on one day.",
+    "5. Use the gold corner box to open full calendar mode."
+  ].join("\n");
+
   function readState() {
     try { return JSON.parse(localStorage.getItem(GROUP_STATE_KEY)) || { active: null }; }
     catch { return { active: null }; }
@@ -39,7 +48,7 @@
   function previewText(cards, group) {
     if (!cards.length) return `${group.title}: no tasks yet. Click this box, then Add new.`;
     const examples = cards.slice(0, 4).map(card => card.querySelector("h3")?.textContent?.trim()).filter(Boolean).join("\n");
-    return `${group.title}: ${cards.length} task${cards.length === 1 ? "" : "s"}. Click to open the drag tray.\n${examples}`;
+    return `${group.title}: ${cards.length} task${cards.length === 1 ? "" : "s"}.\n${examples}`;
   }
 
   function openAddForGroup(group) {
@@ -68,12 +77,8 @@
     card.dataset.categoryGroup = group.id;
     card.style.setProperty("--task-colour", group.colour);
     card.setAttribute("draggable", "true");
-    if (!card.querySelector(".drag-helper-label")) {
-      const helper = document.createElement("div");
-      helper.className = "drag-helper-label";
-      helper.innerHTML = `<span class="inline-dot" style="--dot:${group.colour}"></span><strong>Drag this into the calendar</strong>`;
-      card.insertBefore(helper, card.firstChild);
-    }
+    const oldHelper = card.querySelector(".drag-helper-label");
+    if (oldHelper) oldHelper.remove();
     const meta = card.querySelector(".task-meta");
     if (meta && !meta.dataset.expandedLabel) {
       meta.dataset.expandedLabel = "true";
@@ -92,7 +97,15 @@
     }
     const starter = document.getElementById("loadStarter");
     controls.innerHTML = "";
-    if (starter) controls.appendChild(starter);
+    if (starter) {
+      starter.title = starterGuide;
+      starter.querySelector(".category-preview")?.remove();
+      const preview = document.createElement("span");
+      preview.className = "category-preview starter-guide-preview";
+      preview.innerHTML = starterGuide.replaceAll("\n", "<br>");
+      starter.appendChild(preview);
+      controls.appendChild(starter);
+    }
     groups.forEach(group => {
       const cards = buckets.get(group.id) || [];
       const button = document.createElement("button");
@@ -127,7 +140,7 @@
     section.dataset.group = group.id;
     section.hidden = true;
     section.style.setProperty("--task-colour", group.colour);
-    section.innerHTML = `<div class="pile-section-header"><span><span class="inline-dot" style="--dot:${group.colour}"></span>${group.title}</span><span>${cards.length} card${cards.length === 1 ? "" : "s"} to drag</span><button type="button" class="ghost add-new-category">Add new</button></div><p class="drag-tray-help">Drag any card below into a day/time box in the calendar.</p><div class="pile-section-grid"></div>`;
+    section.innerHTML = `<div class="pile-section-header"><span><span class="inline-dot" style="--dot:${group.colour}"></span>${group.title}</span><span>${cards.length} card${cards.length === 1 ? "" : "s"}</span><button type="button" class="ghost add-new-category">Add new</button></div><div class="pile-section-grid"></div>`;
     section.querySelector(".add-new-category").addEventListener("click", event => { event.stopPropagation(); openAddForGroup(group); });
     const grid = section.querySelector(".pile-section-grid");
     if (cards.length) {
