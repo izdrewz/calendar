@@ -1,0 +1,148 @@
+/* Eco fixes: keep calendar tasks tiny, show details only in popup, remove heavy in-grid expansion */
+
+#calendar .task-card.calendar-mosaic-task,
+#calendar .task-card.calendar-mosaic-task.calendar-task-open,
+body.day-focus #calendar .task-card.calendar-mosaic-task,
+body.calendar-fullscreen:not(.day-focus) #calendar .task-card.calendar-mosaic-task.calendar-task-open {
+  position: relative !important;
+  width: 26px !important;
+  min-width: 26px !important;
+  max-width: 26px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  max-height: 26px !important;
+  padding: 0 !important;
+  margin: .08rem !important;
+  overflow: hidden !important;
+  border-radius: 6px !important;
+  border: 2px solid var(--deep-red, #4b0d27) !important;
+  background: var(--task-colour, #d6a8b4) !important;
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,.42) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.42) 75%),
+    linear-gradient(45deg, rgba(75,13,39,.22) 25%, transparent 25%, transparent 75%, rgba(75,13,39,.22) 75%) !important;
+  background-size: 13px 13px !important;
+  background-position: 0 0, 6.5px 6.5px !important;
+  color: transparent !important;
+  cursor: pointer !important;
+  z-index: 8 !important;
+}
+
+body.calendar-fullscreen #calendar .task-card.calendar-mosaic-task,
+body.calendar-fullscreen:not(.day-focus) #calendar .task-card.calendar-mosaic-task.calendar-task-open {
+  width: 28px !important;
+  min-width: 28px !important;
+  max-width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  max-height: 28px !important;
+}
+
+#calendar .task-card.calendar-mosaic-task > *,
+#calendar .task-card.calendar-mosaic-task.calendar-task-open > *,
+body.day-focus #calendar .task-card.calendar-mosaic-task > * {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+#calendar .task-card.calendar-mosaic-task::after,
+#calendar .task-card.calendar-mosaic-task:hover::after,
+#calendar .task-card.calendar-mosaic-task:focus-within::after,
+#calendar .task-card.calendar-mosaic-task.calendar-task-open::after,
+body.day-focus #calendar .task-card.calendar-mosaic-task::after {
+  display: none !important;
+}
+
+#calendar .task-card.calendar-mosaic-task.calendar-task-open {
+  outline: 3px solid #fff8ec !important;
+  box-shadow: 0 0 0 5px var(--deep-red, #4b0d27) !important;
+}
+
+.calendar-task-popover[hidden] {
+  display: none !important;
+}
+
+.calendar-task-popover {
+  position: fixed;
+  z-index: 500000;
+  background: #fff8ec;
+  color: var(--deep-red, #4b0d27);
+  border: 4px solid var(--deep-red, #4b0d27);
+  border-radius: 16px;
+  padding: .8rem .85rem .85rem 1rem;
+  box-shadow: 0 22px 60px rgba(24, 13, 20, .34);
+  font-size: .86rem;
+  line-height: 1.25;
+}
+
+.calendar-task-popover-strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: .48rem;
+  border-radius: 12px 0 0 12px;
+  background: var(--task-colour, #d6a8b4);
+}
+
+.calendar-task-popover-close {
+  position: absolute;
+  top: .35rem;
+  right: .4rem;
+  width: 1.65rem;
+  height: 1.65rem;
+  display: grid;
+  place-items: center;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  background: var(--deep-red, #4b0d27) !important;
+  color: #fff8ec !important;
+  font-size: 1rem !important;
+}
+
+.calendar-task-popover h3 {
+  margin: 0 1.7rem .25rem 0;
+  color: var(--deep-red, #4b0d27);
+  font-size: .98rem;
+  line-height: 1.15;
+}
+
+.calendar-task-popover p {
+  margin: .18rem 0;
+}
+
+.calendar-task-popover-meta {
+  font-weight: 750;
+  opacity: .85;
+  font-size: .78rem;
+}
+
+.calendar-task-popover-step {
+  color: #6d4656;
+  font-size: .8rem;
+}
+
+.calendar-task-popover-actions {
+  display: flex;
+  gap: .35rem;
+  flex-wrap: wrap;
+  margin-top: .6rem;
+}
+
+.calendar-task-popover-actions button {
+  padding: .4rem .58rem !important;
+  border-radius: 999px !important;
+  font-size: .74rem !important;
+}
+
+body.eco-mode .calendar-tip::after,
+body.eco-mode .category-preview {
+  display: none !important;
+}
+
+body.eco-mode .mock-category-panel {
+  contain: layout paint !important;
+}
+
+body.eco-mode .mock-calendar-box {
+  contain: layout paint !important;
+}
