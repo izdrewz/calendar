@@ -1,16 +1,16 @@
 (() => {
-  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v6";
+  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v7";
   let isGrouping = false;
 
   const groups = [
-    { id: "uni", title: "Uni", colour: "#3f78b5", type: "Study", terms: ["study", "exam", "note", "clean notes"] },
-    { id: "self-care", title: "Self care", colour: "#7fa84b", type: "Daily Reset", terms: ["daily reset", "journal", "rest", "gaming", "keyboard"] },
-    { id: "personal", title: "Personal", colour: "#d85f7b", type: "Admin", terms: ["admin", "shopping", "life planning", "gift", "messages", "reply"] },
+    { id: "uni", title: "Uni", colour: "#3f78b5", type: "Study", terms: ["study", "uni", "exam", "note", "clean notes"] },
+    { id: "self-care", title: "Self care", colour: "#7fa84b", type: "Daily Reset", terms: ["daily reset", "self care", "journal", "rest", "gaming", "keyboard"] },
+    { id: "personal", title: "Personal", colour: "#d85f7b", type: "Admin", terms: ["admin", "personal", "shopping", "life planning", "gift", "messages", "reply"] },
     { id: "cleaning", title: "Cleaning", colour: "#45a9bd", type: "Cleaning", terms: ["cleaning", "vacuum", "surface", "mirror", "windows", "rubbish", "recycling", "crockery"] },
-    { id: "projects", title: "Projects", colour: "#c02f36", type: "Room Setup", terms: ["room setup", "project", "shelves", "storage", "bug", "noise", "hanger", "labels"] },
-    { id: "crafts", title: "Crafts", colour: "#a85aa0", type: "Creative", terms: ["creative", "craft", "crochet", "dress", "upscale", "cardboard", "canderel"] },
+    { id: "projects", title: "Projects", colour: "#c02f36", type: "Room Setup", terms: ["room setup", "project", "projects", "shelves", "storage", "bug", "noise", "hanger", "labels"] },
+    { id: "creativity", title: "Creativity", colour: "#a85aa0", type: "Creative", terms: ["creative", "creativity", "craft", "crafts", "crochet", "dress", "upscale", "cardboard", "canderel"] },
     { id: "clothes", title: "Clothes", colour: "#77824f", type: "Clothes", terms: ["clothes", "sell", "stock", "vinted", "photos", "listed"] },
-    { id: "one-off", title: "One-off", colour: "#b9742f", type: "Admin", terms: ["one-off"] },
+    { id: "one-off", title: "One-off", colour: "#b9742f", type: "Admin", terms: ["one-off", "one off"] },
     { id: "other", title: "Other", colour: "#4f2441", type: "Admin", terms: [] }
   ];
 
@@ -41,7 +41,7 @@
 
   function groupFor(card) {
     const text = cardText(card);
-    if (text.includes("one-off")) return groups.find(g => g.id === "one-off");
+    if (text.includes("one-off") || text.includes("one off")) return groups.find(g => g.id === "one-off");
     return groups.find(group => group.id !== "one-off" && group.id !== "other" && group.terms.some(term => text.includes(term))) || groups.find(group => group.id === "other");
   }
 
