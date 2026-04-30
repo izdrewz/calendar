@@ -5,13 +5,14 @@
     { key: 'Admin|Personal|shopping|gift|messages|reply', name: 'personal', colour: '#d85f7b' },
     { key: 'Cleaning|cleaning|vacuum|surface|mirror|rubbish|recycling|crockery', name: 'cleaning', colour: '#45a9bd' },
     { key: 'Room Setup|Projects|shelves|storage|bug|noise|labels', name: 'projects', colour: '#c02f36' },
-    { key: 'Creative|Crafts|crochet|dress|upscale|cardboard|canderel', name: 'crafts', colour: '#a85aa0' },
+    { key: 'Creative|Creativity|Crafts|crochet|dress|upscale|cardboard|canderel', name: 'creativity', colour: '#a85aa0' },
     { key: 'Clothes|clothes|sell|stock|vinted|photos', name: 'clothes', colour: '#77824f' },
     { key: 'one-off|One-off', name: 'one-off', colour: '#b9742f' },
     { key: 'Other', name: 'other', colour: '#4f2441' }
   ];
   const ENERGY_STARS = { low: 1, medium: 2, high: 3 };
   let templateModeInstalled = false;
+  let refreshFrame = null;
 
   function categoryForCard(card) {
     if (card.dataset.categoryGroup) {
@@ -43,8 +44,6 @@
   }
 
   function energyFromCard(card) {
-    const selectValue = card.querySelector('.task-intensity-control select')?.value;
-    if (selectValue === 'high' || selectValue === 'medium' || selectValue === 'low') return selectValue;
     const text = [card.querySelector('.task-meta')?.textContent, card.textContent].join(' ').toLowerCase();
     if (text.includes('high')) return 'high';
     if (text.includes('low')) return 'low';
@@ -72,12 +71,6 @@
         stars.textContent = '★'.repeat(ENERGY_STARS[level] || 2);
         stars.title = `${level} intensity`;
         stars.dataset.intensity = level;
-      }
-      if (card.closest('#calendar') && !card.querySelector('.calendar-card-hint')) {
-        const hint = document.createElement('span');
-        hint.className = 'calendar-card-hint';
-        hint.textContent = 'calendar task';
-        card.querySelector('.card-title-row')?.appendChild(hint);
       }
       if (!card.closest('#calendar') && !card.classList.contains('one-off')) {
         card.classList.add('template-card');
@@ -218,10 +211,19 @@
     improveInjectedIcsButton();
   }
 
-  document.addEventListener('DOMContentLoaded', compactCalendarAfterRender);
-  window.addEventListener('load', compactCalendarAfterRender);
-  document.addEventListener('click', () => setTimeout(compactCalendarAfterRender, 80), true);
-  document.addEventListener('change', () => setTimeout(compactCalendarAfterRender, 80), true);
-  document.addEventListener('drop', () => setTimeout(compactCalendarAfterRender, 120), true);
-  new MutationObserver(() => requestAnimationFrame(compactCalendarAfterRender)).observe(document.documentElement, { childList: true, subtree: true, characterData: true, attributes: true });
+  function scheduleRefresh(delay = 0) {
+    if (refreshFrame) return;
+    window.setTimeout(() => {
+      refreshFrame = requestAnimationFrame(() => {
+        refreshFrame = null;
+        compactCalendarAfterRender();
+      });
+    }, delay);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => scheduleRefresh());
+  window.addEventListener('load', () => scheduleRefresh());
+  document.addEventListener('click', () => scheduleRefresh(60), true);
+  document.addEventListener('change', () => scheduleRefresh(60), true);
+  document.addEventListener('drop', () => scheduleRefresh(120), true);
 })();
