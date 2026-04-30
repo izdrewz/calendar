@@ -1,0 +1,287 @@
+/* Current planner UX fixes: cleaner category tray, popup options, focus modes */
+
+body.mock-calendar-page {
+  --slot-height: 48px;
+}
+
+.mock-calendar-header,
+.mock-calendar-shell {
+  max-width: 1600px !important;
+}
+
+.mock-calendar-shell {
+  grid-template-columns: 250px minmax(0, 1fr) !important;
+  gap: 1.1rem !important;
+  overflow: visible !important;
+}
+
+.mock-calendar-main,
+.mock-category-panel {
+  overflow: visible !important;
+}
+
+.mock-timer-panel {
+  min-height: 0 !important;
+  height: 236px !important;
+  max-height: 236px !important;
+  align-self: start !important;
+  overflow: auto !important;
+}
+
+.mock-timer-panel .hint,
+.mock-timer-panel #focusText {
+  display: none !important;
+}
+
+.mock-timer-panel h2 {
+  margin-bottom: .7rem !important;
+}
+
+.mock-timer-actions {
+  margin-top: .2rem !important;
+}
+
+.mock-category-panel {
+  z-index: 5000 !important;
+}
+
+.mock-category-panel .category-preview {
+  z-index: 200000 !important;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.mock-category-panel .category-box:nth-last-child(-n+3) .category-preview {
+  left: auto !important;
+  right: 0 !important;
+}
+
+.mock-category-panel .tiny-step,
+.mock-category-panel .drag-tray-help,
+.mock-category-panel .drag-helper-label {
+  display: none !important;
+}
+
+.mock-category-panel .task-card {
+  gap: .38rem !important;
+}
+
+.mock-category-panel .task-meta {
+  font-size: .72rem !important;
+}
+
+.mock-category-panel .card-actions {
+  gap: .3rem !important;
+}
+
+.mock-category-panel .details-button,
+.mock-category-panel .options-button {
+  font-size: .78rem !important;
+  padding: .42rem .62rem !important;
+}
+
+.task-intensity-control {
+  display: none !important;
+}
+
+.visual-intensity-control {
+  font-size: .68rem !important;
+  line-height: 1 !important;
+  gap: .22rem !important;
+}
+
+.visual-intensity-control select {
+  font-size: .68rem !important;
+  padding: .22rem .38rem !important;
+}
+
+.mock-calendar-box {
+  min-height: 390px !important;
+  max-height: 62vh !important;
+  overflow: auto !important;
+}
+
+.mock-calendar-box .slot {
+  min-height: 48px !important;
+  padding: .22rem !important;
+}
+
+.mock-calendar-box .time-label {
+  height: 48px !important;
+  font-size: .9rem !important;
+}
+
+.mock-calendar-box .day-header {
+  padding: .42rem .35rem !important;
+}
+
+.mock-calendar-box .day-header div:last-child {
+  font-size: .88rem !important;
+}
+
+.mock-calendar-box .calendar {
+  grid-template-columns: 58px repeat(7, minmax(138px, 1fr)) !important;
+  min-width: 1040px !important;
+}
+
+.mock-calendar-box .corner {
+  display: grid !important;
+  place-items: center !important;
+}
+
+.calendar-focus-toggle {
+  background: rgba(255, 248, 236, .92) !important;
+  color: var(--deep-red, #4b0d27) !important;
+  border: 2px solid var(--deep-red, #4b0d27) !important;
+  border-radius: 999px !important;
+  padding: .28rem .5rem !important;
+  font-size: .68rem !important;
+  box-shadow: none !important;
+}
+
+.mock-calendar-box .day-header {
+  cursor: pointer;
+}
+
+.mock-calendar-box .day-header.focused-day {
+  box-shadow: inset 0 0 0 4px var(--gold-star, #b58c35) !important;
+}
+
+body.calendar-fullscreen {
+  overflow: hidden !important;
+}
+
+body.calendar-fullscreen .mock-calendar-box {
+  position: fixed !important;
+  inset: 1rem !important;
+  z-index: 300000 !important;
+  max-height: none !important;
+  height: calc(100vh - 2rem) !important;
+  min-height: 0 !important;
+  width: calc(100vw - 2rem) !important;
+  margin: 0 !important;
+  padding: .9rem !important;
+  box-shadow: 0 0 0 9999px rgba(24, 13, 20, .42) !important;
+}
+
+body.calendar-fullscreen .mock-calendar-box .calendar {
+  min-width: 1180px !important;
+}
+
+body.day-focus .mock-calendar-box .calendar {
+  grid-template-columns: 58px minmax(340px, 1fr) !important;
+  min-width: 520px !important;
+}
+
+body.day-focus .mock-calendar-box .day-header,
+body.day-focus .mock-calendar-box .slot {
+  display: none !important;
+}
+
+body.day-focus[data-focus-day="0"] .mock-calendar-box .calendar > .day-header:nth-child(2),
+body.day-focus[data-focus-day="1"] .mock-calendar-box .calendar > .day-header:nth-child(3),
+body.day-focus[data-focus-day="2"] .mock-calendar-box .calendar > .day-header:nth-child(4),
+body.day-focus[data-focus-day="3"] .mock-calendar-box .calendar > .day-header:nth-child(5),
+body.day-focus[data-focus-day="4"] .mock-calendar-box .calendar > .day-header:nth-child(6),
+body.day-focus[data-focus-day="5"] .mock-calendar-box .calendar > .day-header:nth-child(7),
+body.day-focus[data-focus-day="6"] .mock-calendar-box .calendar > .day-header:nth-child(8) {
+  display: block !important;
+}
+
+body.day-focus[data-focus-day="0"] .mock-calendar-box .calendar > .slot:nth-child(8n+10),
+body.day-focus[data-focus-day="1"] .mock-calendar-box .calendar > .slot:nth-child(8n+11),
+body.day-focus[data-focus-day="2"] .mock-calendar-box .calendar > .slot:nth-child(8n+12),
+body.day-focus[data-focus-day="3"] .mock-calendar-box .calendar > .slot:nth-child(8n+13),
+body.day-focus[data-focus-day="4"] .mock-calendar-box .calendar > .slot:nth-child(8n+14),
+body.day-focus[data-focus-day="5"] .mock-calendar-box .calendar > .slot:nth-child(8n+15),
+body.day-focus[data-focus-day="6"] .mock-calendar-box .calendar > .slot:nth-child(8n+16) {
+  display: grid !important;
+}
+
+.planner-modal[hidden] {
+  display: none !important;
+}
+
+.planner-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 400000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(24, 13, 20, .48);
+}
+
+.planner-modal-card {
+  width: min(520px, 94vw);
+  background: #fff8ec;
+  border: 4px solid var(--deep-red, #4b0d27);
+  border-radius: 18px;
+  padding: 1rem;
+  box-shadow: 0 24px 70px rgba(24, 13, 20, .35);
+  position: relative;
+}
+
+.planner-modal-card h2 {
+  margin: 0 2rem .75rem 0;
+  color: var(--deep-red, #4b0d27);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.planner-modal-close {
+  position: absolute;
+  top: .65rem;
+  right: .65rem;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  padding: 0 !important;
+  background: var(--deep-red, #4b0d27) !important;
+  color: #fff8ec !important;
+}
+
+.planner-options-form {
+  display: grid;
+  gap: .7rem;
+}
+
+.planner-options-form label {
+  display: grid;
+  gap: .32rem;
+  color: var(--deep-red, #4b0d27);
+  font-weight: 800;
+  font-size: .88rem;
+}
+
+.planner-options-form textarea,
+.planner-options-form input,
+.planner-options-form select {
+  border: 2px solid rgba(75, 13, 39, .25);
+  border-radius: 14px;
+  background: #fff;
+  color: #1e1117;
+  padding: .62rem .72rem;
+}
+
+.planner-modal-actions {
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1050px) {
+  .mock-calendar-shell {
+    grid-template-columns: 1fr !important;
+  }
+
+  .mock-timer-panel {
+    height: 210px !important;
+    max-height: 210px !important;
+  }
+
+  .mock-calendar-box {
+    max-height: 58vh !important;
+  }
+}
