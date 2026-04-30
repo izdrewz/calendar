@@ -5,6 +5,10 @@
   const TEMPLATE_SOURCE = "recurring-template";
   const COPY_SOURCE = "recurring-copy";
   const EFFORT_LABELS = { low: "Low", medium: "Medium", high: "High" };
+  const TYPE_OPTIONS = ["Study", "Daily Reset", "Admin", "Cleaning", "Room Setup", "Shopping", "Clothes", "Creative", "Life Planning", "Rest"];
+
+  let calendarFullscreen = false;
+  let focusDay = null;
 
   function week() {
     const key = currentWeekKey();
@@ -86,35 +90,130 @@
     } else {
       instance.energy = effort;
     }
-    saveState();
   }
 
-  function addEffortControl(card, instance, data) {
-    const actions = card.querySelector(".card-actions");
-    if (!actions || card.querySelector(".task-intensity-control")) return;
+  function setTypeAndCategory(instance, type, category) {
+    const cleanType = TYPE_OPTIONS.includes(type) ? type : "Admin";
+    const cleanCategory = String(category || cleanType).trim();
+    if (instance.taskId) {
+      const task = getTask(instance.taskId);
+      if (task) {
+        task.type = cleanType;
+        task.category = cleanCategory;
+      }
+      getWeekInstances().forEach(item => {
+        if (item.taskId === instance.taskId) {
+          item.type = "";
+          item.category = "";
+        }
+      });
+    } else {
+      instance.type = cleanType;
+      instance.category = cleanCategory;
+    }
+  }
 
-    const current = (data.energy || "medium").toLowerCase();
-    const label = document.createElement("label");
-    label.className = "task-intensity-control";
-    label.innerHTML = `
-      <span>Intensity</span>
-      <select aria-label="Task intensity">
-        <option value="low">Low ★</option>
-        <option value="medium">Medium ★★</option>
-        <option value="high">High ★★★</option>
-      </select>
+  function setDetails(instance, details) {
+    const clean = String(details || "").trim();
+    if (instance.taskId) {
+      const task = getTask(instance.taskId);
+      if (task) task.details = clean;
+    } else {
+      instance.details = clean;
+    }
+    instance.note = clean;
+  }
+
+  function ensureOptionsModal() {
+    let modal = document.getElementById("taskOptionsModal");
+    if (modal) return modal;
+    modal = document.createElement("div");
+    modal.id = "taskOptionsModal";
+    modal.className = "planner-modal";
+    modal.hidden = true;
+    modal.innerHTML = `
+      <div class="planner-modal-card" role="dialog" aria-modal="true" aria-labelledby="taskOptionsTitle">
+        <button type="button" class="planner-modal-close" aria-label="Close options">×</button>
+        <h2 id="taskOptionsTitle">Task options</h2>
+        <form id="taskOptionsForm" class="planner-options-form">
+          <label>Intensity
+            <select id="taskOptionsIntensity">
+              <option value="low">Low ★</option>
+              <option value="medium">Medium ★★</option>
+              <option value="high">High ★★★</option>
+            </select>
+          </label>
+          <label>Category
+            <select id="taskOptionsType"></select>
+          </label>
+          <label>Custom category label
+            <input id="taskOptionsCategory" type="text" placeholder="Uni, Personal, Cleaning...">
+          </label>
+          <label>Details
+            <textarea id="taskOptionsDetails" rows="4" placeholder="Optional notes for this task"></textarea>
+          </label>
+          <div class="planner-modal-actions">
+            <button type="submit">Save</button>
+            <button type="button" class="ghost planner-modal-cancel">Cancel</button>
+          </div>
+        </form>
+      </div>
     `;
-    const select = label.querySelector("select");
-    select.value = EFFORT_LABELS[current] ? current : "medium";
-    select.addEventListener("click", event => event.stopPropagation());
-    select.addEventListener("dragstart", event => event.preventDefault());
-    select.addEventListener("change", event => {
-      event.stopPropagation();
-      setEffort(instance, select.value);
-      normaliseTemplates();
-      render();
+    document.body.appendChild(modal);
+    const typeSelect = modal.querySelector("#taskOptionsType");
+    TYPE_OPTIONS.forEach(type => {
+      const option = document.createElement("option");
+      option.value = type;
+      option.textContent = type;
+      typeSelect.appendChild(option);
     });
-    actions.prepend(label);
+    modal.addEventListener("click", event => {
+      if (event.target === modal || event.target.closest(".planner-modal-close") || event.target.closest(".planner-modal-cancel")) {
+        modal.hidden = true;
+      }
+    });
+    return modal;
+  }
+
+  function openTaskOptions(instance) {
+    const modal = ensureOptionsModal();
+    const data = modelFor(instance);
+    modal.dataset.instanceId = instance.id;
+    modal.querySelector("#taskOptionsTitle").textContent = data.baseTitle || data.title || "Task options";
+    modal.querySelector("#taskOptionsIntensity").value = (data.energy || "medium").toLowerCase();
+    modal.querySelector("#taskOptionsType").value = TYPE_OPTIONS.includes(data.type) ? data.type : "Admin";
+    modal.querySelector("#taskOptionsCategory").value = data.category || data.type || "";
+    modal.querySelector("#taskOptionsDetails").value = data.details || instance.note || "";
+    modal.hidden = false;
+    modal.querySelector("#taskOptionsIntensity")?.focus();
+
+    const form = modal.querySelector("#taskOptionsForm");
+    form.onsubmit = event => {
+      event.preventDefault();
+      const current = getWeekInstances().find(item => item.id === modal.dataset.instanceId && !item.deleted);
+      if (!current) return;
+      setEffort(current, modal.querySelector("#taskOptionsIntensity").value);
+      setTypeAndCategory(current, modal.querySelector("#taskOptionsType").value, modal.querySelector("#taskOptionsCategory").value);
+      setDetails(current, modal.querySelector("#taskOptionsDetails").value);
+      normaliseTemplates();
+      saveState();
+      modal.hidden = true;
+      render();
+    };
+  }
+
+  function attachOptionsButton(card, instance) {
+    const button = card.querySelector(".details-button");
+    if (!button) return;
+    const clean = button.cloneNode(true);
+    clean.textContent = "Options";
+    clean.classList.add("options-button");
+    clean.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      openTaskOptions(instance);
+    });
+    button.replaceWith(clean);
   }
 
   const originalEnsureWeek = ensureWeek;
@@ -192,8 +291,7 @@
     const data = modelFor(instance);
     const title = card.querySelector("h3");
     if (title) title.textContent = data.baseTitle || data.title;
-
-    addEffortControl(card, instance, data);
+    attachOptionsButton(card, instance);
 
     if (isTaskTemplate(instance)) {
       card.classList.add("template-card");
@@ -204,8 +302,7 @@
           `${data.duration} min`,
           data.priority,
           data.type,
-          data.energy,
-          "reusable"
+          data.energy
         ].filter(Boolean).join(" • ");
       }
       const done = card.querySelector(".done-button");
@@ -252,12 +349,52 @@
     if (select) select.value = value;
   }
 
+  function installCalendarFocusControls() {
+    const corner = document.querySelector(".mock-calendar-box .corner");
+    if (corner && !corner.querySelector(".calendar-focus-toggle")) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "calendar-focus-toggle";
+      button.addEventListener("click", event => {
+        event.stopPropagation();
+        calendarFullscreen = !calendarFullscreen;
+        applyCalendarFocusState();
+      });
+      corner.appendChild(button);
+    }
+
+    document.querySelectorAll(".mock-calendar-box .day-header").forEach((header, index) => {
+      header.dataset.day = String(index);
+      if (!header.dataset.dayFocusReady) {
+        header.dataset.dayFocusReady = "true";
+        header.addEventListener("click", () => {
+          focusDay = focusDay === index ? null : index;
+          applyCalendarFocusState();
+        });
+      }
+    });
+    applyCalendarFocusState();
+  }
+
+  function applyCalendarFocusState() {
+    document.body.classList.toggle("calendar-fullscreen", calendarFullscreen);
+    document.body.classList.toggle("day-focus", focusDay !== null);
+    if (focusDay === null) document.body.removeAttribute("data-focus-day");
+    else document.body.setAttribute("data-focus-day", String(focusDay));
+    document.querySelectorAll(".mock-calendar-box .day-header").forEach((header, index) => {
+      header.classList.toggle("focused-day", focusDay === index);
+    });
+    const button = document.querySelector(".calendar-focus-toggle");
+    if (button) button.textContent = calendarFullscreen ? "Exit" : "Full";
+  }
+
   const originalRender = render;
   render = function templateRender() {
     normaliseTemplates();
     originalRender();
     ensureColourStrengthControl();
     applyIntensityClass();
+    installCalendarFocusControls();
   };
 
   normaliseTemplates();
