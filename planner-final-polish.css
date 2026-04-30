@@ -11,111 +11,206 @@
 }
 
 .mock-calendar-main {
-  width: 100% !important;
-  min-width: 0 !important;
+  display: contents !important;
 }
 
 .mock-timer-panel {
-  height: 350px !important;
-  max-height: 350px !important;
-  min-height: 350px !important;
+  grid-column: 1 !important;
+  grid-row: 1 / span 2 !important;
+  height: 315px !important;
+  max-height: 315px !important;
+  min-height: 315px !important;
   display: grid !important;
-  grid-template-rows: 1fr !important;
   place-items: center !important;
   align-self: start !important;
   padding: 1rem !important;
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 250 !important;
 }
 
 .mock-timer-panel h2,
 .mock-timer-panel .hint,
-.mock-timer-panel #focusText {
+.mock-timer-panel #focusText,
+.mock-timer-panel .timer-top,
+.mock-timer-panel > div:first-child,
+.mock-timer-panel .round-timer-form,
+.mock-timer-panel .round-timer-list {
   display: none !important;
 }
 
-.mock-timer-panel > div:first-child {
-  display: none !important;
-}
-
-.mock-timer-actions {
-  width: 100% !important;
-  margin: 0 !important;
-  display: grid !important;
-  grid-template-areas:
-    "clock clock"
-    "start reset" !important;
-  gap: .8rem !important;
-  place-items: center !important;
-}
-
+.timer-clock-button,
 .mock-timer-actions .timer,
 #focusTimer {
-  grid-area: clock !important;
-  width: 160px !important;
-  height: 160px !important;
+  width: 162px !important;
+  height: 162px !important;
   border-radius: 999px !important;
   display: grid !important;
   place-items: center !important;
   background: #fff8ec !important;
   color: var(--deep-red, #4b0d27) !important;
   border: 5px solid var(--deep-red, #4b0d27) !important;
-  box-shadow: inset 0 0 0 6px rgba(181, 140, 53, .32) !important;
+  box-shadow: inset 0 0 0 6px rgba(181, 140, 53, .32), 0 10px 24px rgba(24,13,20,.16) !important;
   font-size: 1.8rem !important;
   font-weight: 950 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
 }
 
-.mock-timer-actions #startFocus {
-  grid-area: start !important;
+.timer-clock-button.running {
+  box-shadow: inset 0 0 0 6px rgba(181, 140, 53, .58), 0 0 0 6px rgba(255,248,236,.72), 0 12px 28px rgba(24,13,20,.22) !important;
 }
 
-.mock-timer-actions #resetFocus {
-  grid-area: reset !important;
-}
-
+.mock-timer-actions,
 .mock-timer-actions button {
-  min-width: 88px !important;
-  padding: .5rem .7rem !important;
+  display: none !important;
+}
+
+.timer-popup[hidden] {
+  display: none !important;
+}
+
+.timer-popup {
+  position: absolute !important;
+  left: calc(100% + .85rem) !important;
+  top: 0 !important;
+  z-index: 350000 !important;
+  width: min(340px, calc(100vw - 340px)) !important;
+  max-height: 360px !important;
+  overflow: auto !important;
+  background: #fff8ec !important;
+  border: 4px solid var(--deep-red, #4b0d27) !important;
+  border-radius: 16px !important;
+  padding: .85rem !important;
+  box-shadow: 0 18px 50px rgba(24,13,20,.32) !important;
+}
+
+.timer-popup .round-timer-form,
+.timer-popup .round-timer-list {
+  display: grid !important;
+}
+
+.timer-popup .round-timer-form {
+  gap: .55rem !important;
+  margin: 0 0 .65rem !important;
+}
+
+.timer-popup .round-timer-form label {
+  display: grid !important;
+  gap: .25rem !important;
+  color: var(--deep-red, #4b0d27) !important;
+  font-size: .82rem !important;
+  font-weight: 850 !important;
+}
+
+.timer-popup select,
+.timer-popup input {
+  width: 100% !important;
+  padding: .45rem .55rem !important;
+  border: 2px solid rgba(75,13,39,.32) !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  color: #160b11 !important;
+}
+
+.timer-popup button {
+  padding: .45rem .6rem !important;
+  border-radius: 999px !important;
+  font-size: .74rem !important;
+}
+
+.timer-popup .round-timer-card {
+  display: grid !important;
+  grid-template-columns: 52px minmax(0, 1fr) !important;
+  gap: .5rem !important;
+  align-items: center !important;
+  padding: .55rem !important;
+  border: 2px solid rgba(75,13,39,.24) !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  margin-bottom: .5rem !important;
+}
+
+.timer-popup .mini-clock {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  border-radius: 999px !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: .72rem !important;
+  font-weight: 900 !important;
+  background: #fff8ec !important;
+  color: var(--deep-red, #4b0d27) !important;
+  border: 2px solid var(--deep-red, #4b0d27) !important;
+  padding: 0 !important;
+}
+
+.timer-popup .round-timer-card h3 {
+  margin: 0 !important;
+  font-size: .78rem !important;
+  line-height: 1.15 !important;
+  color: var(--deep-red, #4b0d27) !important;
+}
+
+.timer-popup .round-timer-actions {
+  grid-column: 1 / -1 !important;
+  display: flex !important;
+  gap: .32rem !important;
+  flex-wrap: wrap !important;
 }
 
 .mock-category-panel {
-  max-height: 235px !important;
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  max-height: 214px !important;
 }
 
 .mock-calendar-toolbar {
-  min-height: 96px !important;
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  min-height: 84px !important;
   display: flex !important;
   align-items: center !important;
 }
 
+.mock-add-panel {
+  grid-column: 2 !important;
+}
+
 .mock-calendar-box {
+  grid-column: 1 / -1 !important;
+  grid-row: 3 !important;
   width: 100% !important;
   max-width: none !important;
   min-height: 360px !important;
   max-height: 56vh !important;
-  margin-top: .2rem !important;
+  margin-top: .15rem !important;
 }
 
 .mock-calendar-box .calendar {
   width: 100% !important;
-  min-width: 1180px !important;
-  grid-template-columns: 60px repeat(7, minmax(150px, 1fr)) !important;
+  min-width: 1360px !important;
+  grid-template-columns: 62px repeat(7, minmax(170px, 1fr)) !important;
 }
 
 .mock-calendar-box .corner,
 .mock-calendar-box .day-header {
   position: sticky !important;
   top: 0 !important;
-  z-index: 120 !important;
+  z-index: 500 !important;
+  isolation: isolate !important;
 }
 
 .mock-calendar-box .corner {
   left: 0 !important;
-  z-index: 160 !important;
+  z-index: 560 !important;
 }
 
 .mock-calendar-box .time-label {
   position: sticky !important;
   left: 0 !important;
-  z-index: 35 !important;
+  z-index: 60 !important;
   clip-path: inset(0) !important;
 }
 
@@ -128,18 +223,22 @@
 .mock-calendar-box .corner::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -2px;
   background: inherit;
   z-index: -1;
 }
 
+.mock-calendar-box .calendar > .time-label:first-of-type {
+  z-index: 50 !important;
+}
+
 body.calendar-fullscreen .mock-calendar-box .calendar {
-  min-width: 1320px !important;
+  min-width: 1500px !important;
 }
 
 body.day-focus .mock-calendar-box .calendar {
-  min-width: 560px !important;
-  grid-template-columns: 62px minmax(380px, 1fr) !important;
+  min-width: 640px !important;
+  grid-template-columns: 62px minmax(480px, 1fr) !important;
 }
 
 @media (max-width: 1050px) {
@@ -147,17 +246,36 @@ body.day-focus .mock-calendar-box .calendar {
     grid-template-columns: 1fr !important;
   }
 
-  .mock-timer-panel {
-    height: 220px !important;
-    min-height: 220px !important;
-    max-height: 220px !important;
+  .mock-calendar-main {
+    display: grid !important;
   }
 
+  .mock-timer-panel,
+  .mock-category-panel,
+  .mock-calendar-toolbar,
+  .mock-calendar-box {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+
+  .mock-timer-panel {
+    height: 170px !important;
+    min-height: 170px !important;
+    max-height: 170px !important;
+  }
+
+  .timer-clock-button,
   .mock-timer-actions .timer,
   #focusTimer {
-    width: 110px !important;
-    height: 110px !important;
+    width: 112px !important;
+    height: 112px !important;
     font-size: 1.35rem !important;
+  }
+
+  .timer-popup {
+    left: 0 !important;
+    top: calc(100% + .65rem) !important;
+    width: min(340px, 92vw) !important;
   }
 
   .mock-calendar-box {
