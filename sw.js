@@ -1,4 +1,4 @@
-const CACHE_NAME = "focus-week-planner-v34-hard-cap-tray";
+const CACHE_NAME = "focus-week-planner-v35-drag-autoscroll-mosaic";
 const ASSETS = [
   "./",
   "./index.html",
@@ -14,6 +14,7 @@ const ASSETS = [
   "./planner-ux-fixes.css",
   "./app.js",
   "./planner-template-fixes.js",
+  "./planner-drag-collapse.js",
   "./planner-piles.js",
   "./planner-compact.js",
   "./planner-mock-layout.js",
