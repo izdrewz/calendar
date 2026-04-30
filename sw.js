@@ -1,4 +1,4 @@
-const CACHE_NAME = "focus-week-planner-v37-timer-popup-wide-calendar";
+const CACHE_NAME = "focus-week-planner-v38-eco-popovers";
 const ASSETS = [
   "./",
   "./index.html",
@@ -13,6 +13,7 @@ const ASSETS = [
   "./planner-mushroom.css",
   "./planner-ux-fixes.css",
   "./planner-final-polish.css",
+  "./planner-eco-fixes.css",
   "./app.js",
   "./planner-template-fixes.js",
   "./planner-drag-collapse.js",
