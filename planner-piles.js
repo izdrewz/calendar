@@ -1,5 +1,5 @@
 (() => {
-  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v8";
+  const GROUP_STATE_KEY = "focus-week-planner-pile-groups-v9";
   let isGrouping = false;
   let groupFrame = null;
 
@@ -30,26 +30,27 @@
   }
   function writeState(state) { localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(state)); }
 
-  function cardText(card) {
-    return [
-      card.querySelector("h3")?.textContent,
-      card.querySelector(".type-badge")?.textContent,
-      card.querySelector(".task-meta")?.textContent,
-      card.querySelector(".tiny-step")?.textContent,
-      card.classList.contains("one-off") ? "one-off" : ""
-    ].join(" ").toLowerCase();
+  function textForData(data) {
+    return [data.type, data.category, data.baseTitle, data.title, data.step, data.details, data.isOneOff ? "one-off" : ""].join(" ").toLowerCase();
   }
 
-  function groupFor(card) {
-    const text = cardText(card);
+  function groupForData(data) {
+    const text = textForData(data);
     if (text.includes("one-off") || text.includes("one off")) return groups.find(g => g.id === "one-off");
     return groups.find(group => group.id !== "one-off" && group.id !== "other" && group.terms.some(term => text.includes(term))) || groups.find(group => group.id === "other");
   }
 
-  function previewText(cards, group) {
-    if (!cards.length) return `${group.title}: no tasks yet. Click this box, then Add new.`;
-    const examples = cards.slice(0, 4).map(card => card.querySelector("h3")?.textContent?.trim()).filter(Boolean).join("\n");
-    return `${group.title}: ${cards.length} task${cards.length === 1 ? "" : "s"}.\n${examples}`;
+  function getUnscheduledInstances() {
+    if (typeof getWeekInstances !== "function" || typeof modelFor !== "function") return [];
+    return getWeekInstances()
+      .filter(instance => !instance.scheduledAt && instance.status !== "done" && instance.status !== "skipped")
+      .sort(typeof sortByPriority === "function" ? sortByPriority : () => 0);
+  }
+
+  function previewText(items, group) {
+    if (!items.length) return `${group.title}: no tasks yet. Click this box, then Add new.`;
+    const examples = items.slice(0, 4).map(item => modelFor(item).baseTitle || modelFor(item).title).filter(Boolean).join("\n");
+    return `${group.title}: ${items.length} task${items.length === 1 ? "" : "s"}.\n${examples}`;
   }
 
   function openAddForGroup(group) {
@@ -87,6 +88,15 @@
     }
   }
 
+  function makeBuckets(items) {
+    const buckets = new Map(groups.map(group => [group.id, []]));
+    items.forEach(instance => {
+      const data = modelFor(instance);
+      buckets.get(groupForData(data).id).push(instance);
+    });
+    return buckets;
+  }
+
   function makeControls(list, buckets) {
     const state = readState();
     let controls = document.getElementById("pileGroupTabs");
@@ -108,35 +118,36 @@
       controls.appendChild(starter);
     }
     groups.forEach(group => {
-      const cards = buckets.get(group.id) || [];
+      const items = buckets.get(group.id) || [];
       const button = document.createElement("button");
       button.type = "button";
       button.className = `category-box ${state.active === group.id ? "active" : ""}`;
       button.dataset.group = group.id;
       button.style.setProperty("--category-colour", group.colour);
-      button.title = previewText(cards, group);
-      button.innerHTML = `<span class="category-dot" style="--dot:${group.colour}"></span><span class="category-title">${group.title}</span><span class="category-count">${cards.length}</span><span class="category-preview">${previewText(cards, group).replaceAll("\n", "<br>")}</span>`;
+      button.title = previewText(items, group);
+      button.innerHTML = `<span class="category-dot" style="--dot:${group.colour}"></span><span class="category-title">${group.title}</span><span class="category-count">${items.length}</span><span class="category-preview">${previewText(items, group).replaceAll("\n", "<br>")}</span>`;
       button.addEventListener("click", () => {
         const next = readState();
         next.active = next.active === group.id ? null : group.id;
         writeState(next);
-        groupPiles(true);
+        groupPiles();
       });
       controls.appendChild(button);
     });
   }
 
-  function buildSection(group, cards, activeGroup) {
+  function buildSection(group, items, activeGroup) {
     const section = document.createElement("section");
     section.className = `pile-section compact-open-pile clear-drag-tray ${activeGroup === group.id ? "is-open" : ""}`;
     section.dataset.group = group.id;
     section.hidden = activeGroup !== group.id;
     section.style.setProperty("--task-colour", group.colour);
-    section.innerHTML = `<div class="pile-section-header"><span><span class="inline-dot" style="--dot:${group.colour}"></span>${group.title}</span><span>${cards.length} card${cards.length === 1 ? "" : "s"}</span><button type="button" class="ghost add-new-category">Add new</button></div><div class="pile-section-grid"></div>`;
+    section.innerHTML = `<div class="pile-section-header"><span><span class="inline-dot" style="--dot:${group.colour}"></span>${group.title}</span><span>${items.length} card${items.length === 1 ? "" : "s"}</span><button type="button" class="ghost add-new-category">Add new</button></div><div class="pile-section-grid"></div>`;
     section.querySelector(".add-new-category").addEventListener("click", event => { event.stopPropagation(); openAddForGroup(group); });
     const grid = section.querySelector(".pile-section-grid");
-    if (cards.length) {
-      cards.forEach(card => {
+    if (items.length) {
+      items.forEach(instance => {
+        const card = createInstanceCard(instance);
         addDragHint(card, group);
         grid.appendChild(card);
       });
@@ -149,16 +160,14 @@
     return section;
   }
 
-  function groupPiles(force = false) {
+  function groupPiles() {
     if (isGrouping) return;
     const list = document.getElementById("unscheduledList");
-    if (!list) return;
-    const cards = [...list.querySelectorAll(":scope > .task-card, :scope .pile-section-grid > .task-card")];
-    if (!force && !cards.length && list.classList.contains("pile-list")) return;
+    if (!list || typeof createInstanceCard !== "function") return;
     isGrouping = true;
     const activeGroup = readState().active;
-    const buckets = new Map(groups.map(group => [group.id, []]));
-    cards.forEach(card => buckets.get(groupFor(card).id).push(card));
+    const items = getUnscheduledInstances();
+    const buckets = makeBuckets(items);
     makeControls(list, buckets);
     list.innerHTML = "";
     list.className = "card-list pile-list compact-pile-list";
@@ -166,21 +175,24 @@
       const group = groups.find(item => item.id === activeGroup) || groups[0];
       list.appendChild(buildSection(group, buckets.get(group.id) || [], activeGroup));
     }
+    const count = document.getElementById("unscheduledCount");
+    if (count) count.textContent = String(items.length);
     isGrouping = false;
   }
 
-  function scheduleGrouping(force = false) {
+  function scheduleGrouping() {
     if (groupFrame) return;
     groupFrame = requestAnimationFrame(() => {
       groupFrame = null;
-      groupPiles(force);
+      groupPiles();
     });
   }
-  document.addEventListener("DOMContentLoaded", () => scheduleGrouping(true));
-  window.addEventListener("load", () => scheduleGrouping(true));
-  document.addEventListener("submit", () => scheduleGrouping(true), true);
-  document.addEventListener("drop", () => setTimeout(() => scheduleGrouping(true), 80), true);
+
+  document.addEventListener("DOMContentLoaded", scheduleGrouping);
+  window.addEventListener("load", scheduleGrouping);
+  document.addEventListener("submit", () => setTimeout(scheduleGrouping, 80), true);
+  document.addEventListener("drop", () => setTimeout(scheduleGrouping, 140), true);
   document.addEventListener("click", event => {
-    if (event.target.closest("#pileGroupTabs,.task-card,.slot,#prevWeek,#nextWeek,#todayWeek")) setTimeout(() => scheduleGrouping(true), 80);
+    if (event.target.closest("#pileGroupTabs,.task-card,.slot,#prevWeek,#nextWeek,#todayWeek,.card-actions")) setTimeout(scheduleGrouping, 120);
   }, true);
 })();
