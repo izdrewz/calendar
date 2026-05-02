@@ -1,16 +1,35 @@
 /* Eco fixes: keep calendar tasks tiny, show details only in popup, remove heavy in-grid expansion */
 
 .mock-category-panel .category-expand-toggle {
-  position: absolute !important;
-  right: .55rem !important;
-  bottom: .45rem !important;
-  z-index: 40 !important;
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 78px !important;
+  margin-left: auto !important;
   padding: .3rem .6rem !important;
   border-radius: 999px !important;
   font-size: .7rem !important;
   background: #fff8ec !important;
   color: var(--deep-red, #4b0d27) !important;
   border: 2px solid var(--deep-red, #4b0d27) !important;
+  z-index: 120000 !important;
+  pointer-events: auto !important;
+  flex: 0 0 auto !important;
+}
+
+.mock-category-panel > .category-expand-toggle {
+  margin: .35rem .55rem .15rem auto !important;
+  float: right !important;
+}
+
+.mock-category-panel .pile-section-header .category-expand-toggle {
+  order: 20 !important;
+}
+
+.mock-category-panel .pile-section-header .add-new-category {
+  order: 30 !important;
 }
 
 .mock-category-panel.category-tray-expanded {
