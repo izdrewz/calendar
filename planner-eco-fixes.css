@@ -1,5 +1,43 @@
 /* Eco fixes: keep calendar tasks tiny, show details only in popup, remove heavy in-grid expansion */
 
+.mock-category-panel .category-expand-toggle {
+  position: absolute !important;
+  right: .55rem !important;
+  bottom: .45rem !important;
+  z-index: 40 !important;
+  padding: .3rem .6rem !important;
+  border-radius: 999px !important;
+  font-size: .7rem !important;
+  background: #fff8ec !important;
+  color: var(--deep-red, #4b0d27) !important;
+  border: 2px solid var(--deep-red, #4b0d27) !important;
+}
+
+.mock-category-panel.category-tray-expanded {
+  max-height: 520px !important;
+  overflow: visible !important;
+  z-index: 250000 !important;
+}
+
+.mock-category-panel.category-tray-expanded #unscheduledList,
+.mock-category-panel.category-tray-expanded .compact-open-pile {
+  max-height: 395px !important;
+  overflow: visible !important;
+}
+
+.mock-category-panel.category-tray-expanded .pile-section-grid {
+  max-height: 342px !important;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  flex-wrap: wrap !important;
+  align-content: flex-start !important;
+  padding-bottom: 2.6rem !important;
+}
+
+.mock-category-panel.category-tray-expanded .task-card {
+  flex: 0 0 220px !important;
+}
+
 .mock-calendar-box .slot {
   display: flex !important;
   flex-direction: row !important;
@@ -165,7 +203,7 @@ body.eco-mode .category-preview {
   display: none !important;
 }
 
-body.eco-mode .mock-category-panel {
+body.eco-mode .mock-category-panel:not(.category-tray-expanded) {
   contain: layout paint !important;
 }
 
