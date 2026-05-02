@@ -1,40 +1,66 @@
 /* Eco fixes: keep calendar tasks tiny, show details only in popup, remove heavy in-grid expansion */
 
+.mock-calendar-box .slot {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-content: flex-start !important;
+  align-items: flex-start !important;
+  gap: 3px !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  max-height: 48px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.mock-calendar-box .slot::before,
+.mock-calendar-box .slot::after {
+  display: none !important;
+}
+
 #calendar .task-card.calendar-mosaic-task,
 #calendar .task-card.calendar-mosaic-task.calendar-task-open,
 body.day-focus #calendar .task-card.calendar-mosaic-task,
 body.calendar-fullscreen:not(.day-focus) #calendar .task-card.calendar-mosaic-task.calendar-task-open {
   position: relative !important;
-  width: 26px !important;
-  min-width: 26px !important;
-  max-width: 26px !important;
-  height: 26px !important;
-  min-height: 26px !important;
-  max-height: 26px !important;
+  flex: 0 0 22px !important;
+  width: 22px !important;
+  min-width: 22px !important;
+  max-width: 22px !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  max-height: 22px !important;
   padding: 0 !important;
-  margin: .08rem !important;
+  margin: 0 !important;
   overflow: hidden !important;
-  border-radius: 6px !important;
+  border-radius: 5px !important;
   border: 2px solid var(--deep-red, #4b0d27) !important;
   background: var(--task-colour, #d6a8b4) !important;
   background-image:
     linear-gradient(45deg, rgba(255,255,255,.42) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.42) 75%),
     linear-gradient(45deg, rgba(75,13,39,.22) 25%, transparent 25%, transparent 75%, rgba(75,13,39,.22) 75%) !important;
-  background-size: 13px 13px !important;
-  background-position: 0 0, 6.5px 6.5px !important;
+  background-size: 11px 11px !important;
+  background-position: 0 0, 5.5px 5.5px !important;
   color: transparent !important;
   cursor: pointer !important;
   z-index: 8 !important;
 }
 
+#calendar .task-card.calendar-mosaic-task.duration-continuation {
+  opacity: .72 !important;
+  border-style: dashed !important;
+}
+
 body.calendar-fullscreen #calendar .task-card.calendar-mosaic-task,
 body.calendar-fullscreen:not(.day-focus) #calendar .task-card.calendar-mosaic-task.calendar-task-open {
-  width: 28px !important;
-  min-width: 28px !important;
-  max-width: 28px !important;
-  height: 28px !important;
-  min-height: 28px !important;
-  max-height: 28px !important;
+  flex-basis: 24px !important;
+  width: 24px !important;
+  min-width: 24px !important;
+  max-width: 24px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  max-height: 24px !important;
 }
 
 #calendar .task-card.calendar-mosaic-task > *,
