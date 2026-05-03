@@ -1,4 +1,4 @@
-const CACHE_NAME = "focus-week-planner-v41-visible-expand-button";
+const CACHE_NAME = "focus-week-planner-v42-timer-layer-fix";
 const ASSETS = [
   "./",
   "./index.html",
@@ -14,6 +14,7 @@ const ASSETS = [
   "./planner-ux-fixes.css",
   "./planner-final-polish.css",
   "./planner-eco-fixes.css",
+  "./planner-layer-fixes.css",
   "./app.js",
   "./planner-template-fixes.js",
   "./planner-category-options-fix.js",
