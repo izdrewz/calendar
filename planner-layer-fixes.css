@@ -1,0 +1,27 @@
+/* Layer fixes: timer popup must sit above expanded category trays */
+
+.mock-timer-panel {
+  z-index: 900000 !important;
+  isolation: isolate !important;
+  overflow: visible !important;
+}
+
+.timer-popup {
+  z-index: 950000 !important;
+}
+
+.mock-category-panel,
+.mock-category-panel.category-tray-expanded {
+  z-index: 250000 !important;
+}
+
+.mock-calendar-toolbar,
+.mock-calendar-box {
+  z-index: 10 !important;
+}
+
+@media (max-width: 1050px) {
+  .timer-popup {
+    z-index: 950000 !important;
+  }
+}
