@@ -1,7 +1,8 @@
-const CACHE_NAME = "focus-week-planner-v42-timer-layer-fix";
+const CACHE_NAME = "focus-week-planner-v43-dashboard-feedback-markup";
 const ASSETS = [
   "./",
   "./index.html",
+  "./home.html",
   "./planner.html",
   "./safe.html",
   "./update.html",
