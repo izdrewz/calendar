@@ -1,0 +1,134 @@
+/* Day focus task tiles + calendar task action polish */
+
+body.day-focus #calendar .day-focus-hidden {
+  display: none !important;
+}
+
+body.day-focus #calendar .day-focus-visible.day-header {
+  display: grid !important;
+}
+
+body.day-focus #calendar .day-focus-visible.slot {
+  display: flex !important;
+}
+
+body.day-focus .mock-calendar-box .calendar {
+  min-width: 720px !important;
+  grid-template-columns: 70px minmax(560px, 1fr) !important;
+}
+
+body.day-focus .mock-calendar-box .time-label {
+  min-height: 86px !important;
+  height: 86px !important;
+  max-height: 86px !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: .94rem !important;
+}
+
+body.day-focus .mock-calendar-box .slot {
+  min-height: 86px !important;
+  height: 86px !important;
+  max-height: 86px !important;
+  gap: 6px !important;
+  padding: 6px !important;
+  overflow: hidden !important;
+  align-content: flex-start !important;
+  align-items: flex-start !important;
+}
+
+body.day-focus #calendar .task-card.calendar-mosaic-task,
+body.day-focus #calendar .task-card.calendar-mosaic-task.calendar-task-open,
+body.day-focus #calendar .task-card.calendar-mosaic-task.duration-continuation {
+  flex: 0 1 170px !important;
+  width: auto !important;
+  min-width: 132px !important;
+  max-width: 240px !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  max-height: 54px !important;
+  padding: .42rem .5rem !important;
+  border-radius: 10px !important;
+  border: 2px solid var(--deep-red, #4b0d27) !important;
+  background: var(--task-colour, #d6a8b4) !important;
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,.28) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.28) 75%),
+    linear-gradient(45deg, rgba(75,13,39,.15) 25%, transparent 25%, transparent 75%, rgba(75,13,39,.15) 75%) !important;
+  background-size: 18px 18px !important;
+  background-position: 0 0, 9px 9px !important;
+  color: #190811 !important;
+  box-shadow: 0 4px 0 rgba(75,13,39,.14) !important;
+  display: grid !important;
+  place-items: stretch !important;
+}
+
+body.day-focus #calendar .task-card.calendar-mosaic-task.duration-continuation {
+  opacity: .84 !important;
+  border-style: dashed !important;
+}
+
+body.day-focus #calendar .task-card.calendar-mosaic-task > * {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.day-focus #calendar .task-card.calendar-mosaic-task .task-main,
+body.day-focus #calendar .task-card.calendar-mosaic-task .task-main > div,
+body.day-focus #calendar .task-card.calendar-mosaic-task .card-title-row,
+body.day-focus #calendar .task-card.calendar-mosaic-task h3 {
+  visibility: visible !important;
+  pointer-events: none !important;
+}
+
+body.day-focus #calendar .task-card.calendar-mosaic-task .task-main {
+  display: grid !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  align-items: center !important;
+}
+
+body.day-focus #calendar .task-card.calendar-mosaic-task .card-title-row {
+  display: block !important;
+  min-width: 0 !important;
+}
+
+body.day-focus #calendar .task-card.calendar-mosaic-task h3 {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  color: #12060d !important;
+  font-size: .84rem !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+  text-shadow: 0 1px 0 rgba(255,248,236,.42) !important;
+}
+
+body.day-focus #calendar .task-card.calendar-mosaic-task .type-badge,
+body.day-focus #calendar .task-card.calendar-mosaic-task .task-meta,
+body.day-focus #calendar .task-card.calendar-mosaic-task .tiny-step,
+body.day-focus #calendar .task-card.calendar-mosaic-task .card-actions,
+body.day-focus #calendar .task-card.calendar-mosaic-task .status-dot,
+body.day-focus #calendar .task-card.calendar-mosaic-task .effort-stars {
+  display: none !important;
+}
+
+.calendar-task-popover-actions [data-action="start-task"],
+.calendar-task-popover-actions .calendar-start-task-button {
+  background: var(--deep-red, #4b0d27) !important;
+  color: #fff8ec !important;
+  border-color: var(--deep-red, #4b0d27) !important;
+}
+
+@media (max-width: 760px) {
+  body.day-focus .mock-calendar-box .calendar {
+    min-width: 520px !important;
+    grid-template-columns: 58px minmax(430px, 1fr) !important;
+  }
+
+  body.day-focus #calendar .task-card.calendar-mosaic-task {
+    min-width: 118px !important;
+    flex-basis: 145px !important;
+  }
+}
