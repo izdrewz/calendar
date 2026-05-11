@@ -1,4 +1,4 @@
-const CACHE_NAME = "focus-week-planner-v43-dashboard-feedback-markup";
+const CACHE_NAME = "focus-week-planner-v44-day-focus-task-actions";
 const ASSETS = [
   "./",
   "./index.html",
@@ -16,12 +16,14 @@ const ASSETS = [
   "./planner-final-polish.css",
   "./planner-eco-fixes.css",
   "./planner-layer-fixes.css",
+  "./planner-day-focus-actions.css",
   "./app.js",
   "./planner-template-fixes.js",
   "./planner-category-options-fix.js",
   "./planner-duration-slots.js",
   "./planner-category-expand.js",
   "./planner-drag-collapse.js",
+  "./planner-day-focus-actions.js",
   "./planner-piles.js",
   "./planner-compact.js",
   "./planner-mock-layout.js",
