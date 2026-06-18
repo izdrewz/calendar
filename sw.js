@@ -1,4 +1,4 @@
-const CACHE_NAME = "focus-week-planner-v44-day-focus-task-actions";
+const CACHE_NAME = "focus-week-planner-v45-dsa-form-task";
 const ASSETS = [
   "./",
   "./index.html",
@@ -29,6 +29,7 @@ const ASSETS = [
   "./planner-mock-layout.js",
   "./planner-timers.js",
   "./ics-export-safe.js",
+  "./dsa-form-task-seed.js",
   "./manifest.webmanifest",
   "./stock.html",
   "./gifts.html",
